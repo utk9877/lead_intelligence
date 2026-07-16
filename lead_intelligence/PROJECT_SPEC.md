@@ -1,8 +1,8 @@
 # Project Spec — AI Lead Intelligence Platform
 
 > **Status:** Phase 0 living document. Reflects the co-founder interview and market-research
-> round one. Decisions ADR-001/002 are accepted; ADR-003/004/005 are **proposed** and shape
-> the scope below — where they do, it is called out. Economics are **placeholders flagged for
+> round one. Decisions ADR-001 through ADR-005 are all **accepted** (founder approval
+> 2026-07-16) and shape the scope below. Economics are **placeholders flagged for
 > validation**, not commitments.
 
 ## 1. Vision

@@ -33,14 +33,14 @@ content* only.
 |-----|----------|--------|
 | [001](ADR/ADR-001-india-market-leads.md) | Indian-company leads; into-India B2B sellers as customers | ✅ **accepted** |
 | [002](ADR/ADR-002-service-before-platform.md) | Productized service before self-serve platform | ✅ **accepted** |
-| [003](ADR/ADR-003-signal-phasing.md) | Signal phasing — triggers + deep-fit first; intent/lookalikes deferred | 🟡 **proposed** |
-| [004](ADR/ADR-004-payper-call-data-apis.md) | Data via pay-per-call registry APIs + own compliant crawling | 🟡 **proposed** |
-| [005](ADR/ADR-005-company-level-first.md) | Company-level intelligence first; contacts via compliant partners | 🟡 **proposed** |
+| [003](ADR/ADR-003-signal-phasing.md) | Signal phasing — triggers + deep-fit first; intent/lookalikes deferred | ✅ **accepted** |
+| [004](ADR/ADR-004-payper-call-data-apis.md) | Data via pay-per-call registry APIs + own compliant crawling | ✅ **accepted** |
+| [005](ADR/ADR-005-company-level-first.md) | Company-level intelligence first; contacts via compliant partners | ✅ **accepted** |
 
-> 🟡 **Proposed ADRs await explicit founder approval** (QUESTIONS.md#adr-approval). Nothing
-> important is silently locked. ADR-003 in particular diverges from the original "all four
-> signals" preference. [`ADR/ADR-000-template.md`](ADR/ADR-000-template.md) is the template for
-> new records.
+> All five ADRs are now **accepted** (founder approval 2026-07-16). ADR-003 was accepted with
+> the note that it diverges from the original "all four signals" preference — the deferral of
+> lookalikes/intent is tracked in QUESTIONS.md#deferred-signals with revisit triggers.
+> [`ADR/ADR-000-template.md`](ADR/ADR-000-template.md) is the template for new records.
 
 ## Conventions
 

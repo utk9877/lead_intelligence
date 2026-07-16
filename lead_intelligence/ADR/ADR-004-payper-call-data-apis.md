@@ -1,6 +1,6 @@
 # ADR-004: Data via pay-per-call registry APIs + own compliant crawling; no enterprise licenses
 
-- **Status:** proposed *(awaiting founder approval)*
+- **Status:** accepted *(founder-approved 2026-07-16)*
 - **Date:** 2026-07-16
 - **Deciders:** Founders (solo/duo)
 - **Related:** ADR-001; ADR-005; ASSUMPTIONS.md#api-cost; RISKS.md#dpdp; RISKS.md#data-tos
@@ -43,3 +43,4 @@ tracked as a first-class unit-economics metric (PROJECT_SPEC.md success metrics)
 ## Status history
 
 - 2026-07-16 — proposed
+- 2026-07-16 — accepted (founder approval)

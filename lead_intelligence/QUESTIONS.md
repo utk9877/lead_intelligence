@@ -53,12 +53,12 @@ coverage, and reliability?
 **Resolve via:** P0 pricing/coverage comparison (ASSUMPTIONS.md#api-cost). Feeds ADR-004
 detail.
 
-### Q8. ADRs 003–005 approval {#adr-approval}
+### Q8. ADRs 003–005 approval {#adr-approval} — ✅ RESOLVED
 
-ADR-003 (signal phasing), ADR-004 (pay-per-call data), ADR-005 (company-level first) are
-**proposed** and await explicit founder approval. Note ADR-003 diverges from the founder's
-original "all four signals" preference.
-**Resolve via:** founder review of each proposed ADR → mark accepted or send back.
+ADR-003 (signal phasing), ADR-004 (pay-per-call data), ADR-005 (company-level first) were
+**accepted** by founder approval on 2026-07-16. ADR-003 was accepted with the noted divergence
+from the original "all four signals" preference; the deferral of lookalikes/intent remains
+tracked in Q6. No open action.
 
 ### Q9. Target N — accounts per customer per month {#target-n}
 

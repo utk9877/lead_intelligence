@@ -1,6 +1,6 @@
 # ADR-005: Company-level intelligence first; person/contact data via compliant partners only
 
-- **Status:** proposed *(awaiting founder approval)*
+- **Status:** accepted *(founder-approved 2026-07-16)*
 - **Date:** 2026-07-16
 - **Deciders:** Founders (solo/duo)
 - **Related:** ADR-001; ADR-004; RISKS.md#dpdp; ASSUMPTIONS.md#company-level-sellable; QUESTIONS.md#contact-data
@@ -43,3 +43,4 @@ person-level compliance burden onto specialized providers.
 ## Status history
 
 - 2026-07-16 — proposed
+- 2026-07-16 — accepted (founder approval)

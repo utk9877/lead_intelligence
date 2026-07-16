@@ -1,6 +1,6 @@
 # ADR-003: Signal phasing — buying triggers + deep-fit reasoning first; intent & lookalikes deferred
 
-- **Status:** proposed *(awaiting founder approval — user originally wanted all four signal types)*
+- **Status:** accepted *(founder-approved 2026-07-16; note this diverged from the original "all four signal types" preference)*
 - **Date:** 2026-07-16
 - **Deciders:** Founders (solo/duo)
 - **Related:** ADR-002; PROJECT_SPEC.md#warm-signals; ASSUMPTIONS.md#company-level-sellable; RISKS.md#intent-coverage
@@ -53,3 +53,4 @@ silent drop — both live in QUESTIONS.md with a revisit trigger.
 ## Status history
 
 - 2026-07-16 — proposed
+- 2026-07-16 — accepted (founder approval)
