@@ -5,6 +5,9 @@
 > else is marked `[source: internal research — verify]` and should be confirmed before it is
 > used in external-facing material (a sales deck, an investor memo). No figure below has been
 > invented; unverified ones are flagged, not dressed up.
+> **Round two (2026-07-19):** bounded web-research pass (see the Companion Analysis) confirmed
+> or corrected several round-one figures; those updates are marked inline with their URLs.
+> Entries still carrying the verify marker remain unconfirmed.
 
 Competitors fall into three layers, and we sit across all three deliberately:
 
@@ -18,15 +21,21 @@ Competitors fall into three layers, and we sit across all three deliberately:
 
 - **What it is:** A GTM-engineering platform with agentic research ("Claygent") that
   enriches and researches accounts/people by chaining data providers and LLM steps.
-- **Business model:** Credit-based usage on top of tiered seats; reportedly ~$100M ARR.
-  `[source: internal research — verify]`
+- **Business model:** Credit-based usage on top of tiered seats; reportedly ~$100M ARR
+  `[source: internal research — verify]`. **Update (research round two, 2026-07-19):** $5B
+  valuation via Jan 2026 employee tender (after a $100M Series C at $3.1B, Aug 2025)
+  [clay.com/dossier/clay-funding](https://www.clay.com/dossier/clay-funding); **March 2026
+  repricing** cut data-marketplace costs 50–90% and restructured plans to Free / $185 Launch /
+  $495 Growth [cleanlist.ai](https://www.cleanlist.ai/blog/2026-03-12-clay-pricing-changes-2026).
 - **Architecture (as understood):** Spreadsheet-like tables → waterfall enrichment across
   many third-party providers → LLM/agent steps (Claygent) for research → export/sync.
 - **Strengths:** Enormously flexible; strong agentic research; large integration catalog;
-  category mindshare.
-- **Weaknesses:** Expensive credit burn; a **2–4 week learning curve**; needs a RevOps/GTM-
-  engineer skillset to operate; **US-centric data** — weak on India and small companies.
-  `[source: internal research — verify]`
+  category mindshare; post-March-2026, meaningfully cheaper data.
+- **Weaknesses:** A **2–4 week learning curve**; needs a RevOps/GTM-engineer skillset to
+  operate; **US-centric data** — weak on India and small companies.
+  `[source: internal research — verify]` The former "expensive credit burn" complaint is
+  **softening** after the 2026 repricing — the learning-curve/skillset wedge is the durable
+  one, the cost wedge is not.
 - **Where we differ:** Clay sells *capability you operate*; we sell *the finished outcome*.
   Their learning curve is our wedge (ADR-002).
 
@@ -34,7 +43,15 @@ Competitors fall into three layers, and we sit across all three deliberately:
 
 - **What it is:** Aggregates "signals" (community, product, web, social) into a person/account
   view for GTM teams.
-- **Business model:** Subscription; entry around **$625+/mo**. `[source: internal research — verify]`
+- **Business model:** Subscription. **Corrected (research round two, 2026-07-19):** entry is now
+  ~**$2,100/mo billed annually** (~$25K/yr Essential; median contract ~$30K/yr) — the earlier
+  "$625+/mo" figure is stale
+  [landbase.com](https://www.landbase.com/blog/commonroom-pricing),
+  [salesmotion.io](https://salesmotion.io/blog/common-room-pricing). Pricing up-market
+  *strengthens* our SMB-budget positioning claim.
+- **Strategic note:** **Zoom announced an agreement to acquire Common Room (July 2026)** —
+  reported in category coverage, verify before external use. Points the product further into
+  enterprise consolidation, away from India-SMB delivered outcomes.
 - **Strengths:** Broad signal capture; good for community-led/PLG motions.
 - **Weaknesses:** **"Dashboard fatigue"** — surfaces signals but doesn't tell you *what to do*;
   poor fit where prospects aren't active in online communities, i.e. **most Indian SMBs**.
@@ -48,7 +65,13 @@ Competitors fall into three layers, and we sit across all three deliberately:
 - **Business model:** Freemium → per-seat tiers with credit limits.
 - **Strengths:** Large global contact database; low entry price; all-in-one prospecting.
 - **Weaknesses:** Systematically weak on **India** and on **sub-200-employee companies**;
-  contact **decay ~22%/yr**. `[source: internal research — verify]`
+  contact **decay ~22%/yr**. `[source: internal research — verify]` **Confirmed current
+  (2026-07-19):** independent 2026 reviews note India coverage gaps, especially mid-market and
+  tier-2 cities [productgrowth.in](https://productgrowth.in/tools/crm-sales/apollo/).
+- **Watch item (feeds RISKS.md#competitor-encroachment):** Apollo has publicly stated interest
+  in **expanding in India — talent and the India SMB market**
+  [entrepreneur.com](https://www.entrepreneur.com/en-in/news-and-trends/apolloio-eyes-expansion-in-india-to-tap-into-talent-smb/488657).
+  The gap is real today but sits on a funded player's roadmap.
 - **Where we differ:** India-first, registry-anchored, freshness from live triggers rather
   than a decaying static database.
 
@@ -73,11 +96,17 @@ Competitors fall into three layers, and we sit across all three deliberately:
 
 ## 6. Pintel.ai — **DIRECT COMPETITOR (deepest teardown)**
 
-- **What it is:** Bengaluru-based India B2B data/signals platform. Founded ~2023; ~$1M raised.
-  `[source: internal research — verify]`
+- **What it is:** Bengaluru-based India B2B data/signals platform. Founded 2023; **$1M seed
+  led by IvyCap Ventures — confirmed** (research round two, 2026-07-19)
+  [bwdisrupt.com](https://www.bwdisrupt.com/article/pintelai-bags-1-mn-seed-funding-led-by-ivycap-ventures-526657);
+  ~23 employees as of Apr 2026
+  [tracxn.com](https://tracxn.com/d/companies/pintel/__CpgXJrNbINmGHd54th4zETxVfWyoOR8JGYOWre-5nvM).
 - **Product:** Claims a **100M+ company India database**, built on **MCA / IndiaMART /
   trade-directory** data, with **buying signals** and **verified contacts**.
-  `[source: internal research — verify]`
+  `[source: internal research — verify]` Current positioning (2026-07-19,
+  [pintel.ai](https://pintel.ai/)): **waterfall enrichment across 30+ data providers** —
+  global contact data plus India-specific sources; still rows/enrichment, not per-account
+  delivered reasoning. SEO-active in exactly our category ("India B2B data providers" content).
 - **Business model (as understood):** Sells a **database + signals platform** (self-serve /
   seat + data access), i.e. the "here are filterable rows and signals, you go work them" shape.
 - **Strengths:** India-first like us; already has scaled registry/trade data; validates the

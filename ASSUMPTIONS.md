@@ -33,6 +33,11 @@ remain cheap enough that cost-per-researched-account leaves a workable margin as
 **Validation:** P0 — obtain real per-call pricing from ≥2 vendors; model cost-per-account at
 target N. Recompute whenever pricing or volume changes. Tie to PROJECT_SPEC.md cost-per-account
 metric.
+**Early signal (research round two, 2026-07-19):** supportive — Attestr publicly documents
+MCA/CIN and GSTIN endpoints, and indicative marketplace pricing (~₹10–100 per business check,
+Signzy class) fits the envelope. **Caveat to test in the vendor comparison:** some vendors
+carry enterprise platform minimums (~₹2–15 lakh/yr) — quotes must confirm true pay-per-call
+tiers with no platform commit, or this assumption weakens.
 
 ### A4. A duo can deliver N accounts/month/customer with agent leverage {#delivery-capacity}
 

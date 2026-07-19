@@ -1,1 +1,6 @@
 .DS_Store
+
+# Proprietary deliverables — kept local, never pushed.
+# PDFs (market research / investor & customer documents) are derived artifacts;
+# the Markdown living docs remain the committed source of truth.
+*.pdf
