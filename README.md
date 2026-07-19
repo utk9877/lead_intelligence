@@ -16,6 +16,7 @@ content* only.
 | [`RISKS.md`](RISKS.md) | Prioritized risks, each with a mitigation |
 | [`QUESTIONS.md`](QUESTIONS.md) | Every open decision, so nothing is dropped |
 | [`ROADMAP.md`](ROADMAP.md) | P0→P3 with revenue + learning gates |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Implementation blueprint: services, monorepo tree, Docker/Kubernetes design, AWS hosting path (design content — nothing built) |
 | [`ADR/`](ADR/) | Architecture Decision Records — the decision spine |
 
 ## Reading order

@@ -11,17 +11,34 @@ every phase gate (ROADMAP.md).
 government statements (Rajya Sabha, **Aug 2024**) indicate that *scraping* such data can still
 trigger IT Act + DPDP obligations. The position is genuinely ambiguous.
 `[source: internal research — verify exact citation before external use]`
+**Update (research round two, 2026-07-19):** the ambiguity persists in current legal
+commentary — the Data Protection Board has not defined "made publicly available"
+([law.asia](https://law.asia/india-data-scraping-regulation/),
+[lawschoolpolicyreview.com](https://lawschoolpolicyreview.com/2026/01/13/publicly-available-data-under-the-dpdp-act-the-limits-of-exemptions-in-ai-driven-processing/)).
+**And the risk now has a hard calendar:** the **DPDP Rules 2025 were notified 13 Nov 2025**
+([PIB](https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/nov/doc20251117695301.pdf));
+**enforcement powers and penalties (up to ₹250 crore per violation) begin 13 Nov 2026**, and
+**full compliance is required by 13 May 2027**
+([amsshardul.com](https://www.amsshardul.com/insight/enforcement-of-the-dpdp-act-and-notification-of-the-dpdp-rules/)).
+Enforcement therefore activates during the planned P1–P2 window.
 **Why it matters:** Our whole data motion depends on collecting public data; a hostile
 interpretation could restrict it.
 **Mitigation:** Company-level intelligence first — company facts (CIN/GSTIN/filings/funding)
-are not personal data (ADR-005). Any person-level contact data comes only from compliant
-third-party providers, never our own person scraping (ADR-005). Track regulatory movement each
-phase gate; keep the ADR-005 boundary bright.
+are not personal data (ADR-005), so the Act's scope does not reach our first-party collection.
+Any person-level contact data comes only from compliant third-party providers, never our own
+person scraping (ADR-005). **Calendar checkpoints added to every phase-gate review: counsel
+review of the allowed-sources list before P1 delivery begins; compliance-posture re-check
+against the 13 Nov 2026 and 13 May 2027 dates.** Keep the ADR-005 boundary bright.
 
 ### R2. Competitor encroachment — Pintel or Clay moving down-market into India {#competitor-encroachment}
 
 **What:** Pintel (funded, on-thesis, Bengaluru) could add delivered-reasoning; Clay/Common
 Room/Apollo could invest in India + SMB coverage.
+**Update (research round two, 2026-07-19):** the window is narrower than round one implied —
+Apollo has publicly stated India-SMB expansion interest; Clay reached a $5B valuation and cut
+data prices 50–90% (Mar 2026); Pintel is SEO-active in exactly our category (see
+COMPETITOR_ANALYSIS.md inline updates for sources). None deliver evidence-cited per-account
+reasoning today.
 **Why it matters:** Erodes the two things we win on (India depth, delivered reasoning).
 **Mitigation:** Move fast on the *delivery* motion (learning-curve moat is behavioral, not just
 data); deepen the registry-anchored graph (ADR-001) that US-first players aren't architected
