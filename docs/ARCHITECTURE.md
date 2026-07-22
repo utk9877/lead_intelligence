@@ -69,8 +69,9 @@ gate — the allowed-sources list of RISKS.md#data-tos is *code*, not a wiki pag
 **Shared libraries** (imported, never networked — a duo does not run a service mesh):
 `li-core` (domain models, config), `li-db` (SQLAlchemy + Alembic, repositories), `li-queue`
 (job-queue abstraction), `li-llm` (Claude client, model tiering, prompt caching, cost ledger),
-`li-compliance` (allowed-sources registry, robots policy, person-data guards), `li-telemetry`
-(structured logs, OpenTelemetry, metrics).
+`li-compliance` (allowed-sources registry, robots policy, person-data guards), `li-storage`
+(content-addressed object store for evidence snapshots — shared because ingestion writes and
+agents/delivery read), `li-telemetry` (structured logs, OpenTelemetry, metrics).
 
 ## 3. Data architecture
 
