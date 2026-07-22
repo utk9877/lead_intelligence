@@ -16,9 +16,11 @@ from li_ingestion.artifacts import CandidateCompany, RawArtifact
 from li_ingestion.normalize import build_signal
 
 # Minimal fingerprint table; extended per niche as detection needs grow (§12-T2).
+# Anchored to asset hosts / markup fingerprints, never bare words — otherwise page
+# prose mentioning a vendor would false-positive a TECH_ADOPTION signal.
 _FINGERPRINTS: dict[str, re.Pattern[bytes]] = {
     "shopify": re.compile(rb"cdn\.shopify\.com|Shopify\.theme"),
-    "woocommerce": re.compile(rb"woocommerce"),
+    "woocommerce": re.compile(rb"/plugins/woocommerce/|woocommerce-[a-z]+\.(?:css|js)|wc-ajax"),
     "razorpay": re.compile(rb"checkout\.razorpay\.com"),
     "hubspot": re.compile(rb"js\.hs-scripts\.com"),
     "segment": re.compile(rb"cdn\.segment\.com"),

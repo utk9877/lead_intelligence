@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 
+import pytest
 from li_compliance.guards import assert_company_level
 from li_core.models import SignalType
 from li_ingestion.adapters import (
@@ -135,3 +136,25 @@ def test_site_tech_emits_nothing_when_no_stack_detected() -> None:
         artifact("site_tech", "https://www.example-co.test", b"<html></html>", "text/html")
     )
     assert result.signals == []
+
+
+def test_site_tech_does_not_false_positive_on_vendor_name_in_prose() -> None:
+    prose = b"<html><p>Our blog compares woocommerce vs shopify pricing.</p></html>"
+    result = SiteTechAdapter("blog.test").parse(
+        artifact("site_tech", "https://www.example-co.test", prose, "text/html")
+    )
+    assert result.signals == []  # anchored fingerprints, not bare words
+
+
+def test_registry_mca_raises_on_missing_key() -> None:
+    body = json.dumps({"name": "No CIN Co"}).encode()  # 'cin' absent
+    with pytest.raises(KeyError):
+        RegistryMcaAdapter().parse(artifact("registry_mca", "https://x.test", body))
+
+
+def test_registry_mca_raises_on_malformed_date() -> None:
+    body = json.dumps(
+        {"cin": FICTIONAL_CIN, "name": "X", "incorporation_date": "not-a-date"}
+    ).encode()
+    with pytest.raises(ValueError, match="isoformat"):
+        RegistryMcaAdapter().parse(artifact("registry_mca", "https://x.test", body))

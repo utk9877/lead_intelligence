@@ -14,7 +14,7 @@ from li_ingestion.pipeline import ingest
 from li_ingestion.snapshots import SnapshotWriter
 from li_storage import InMemoryObjectStore
 
-MakeFetcher = Callable[[dict[str, tuple[int, str, bytes]]], tuple[CompliantFetcher, object]]
+MakeFetcher = Callable[..., tuple[CompliantFetcher, object]]
 
 FEED_ITEM = json.dumps(
     {

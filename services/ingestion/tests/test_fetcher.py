@@ -9,7 +9,7 @@ import pytest
 from li_compliance.errors import DisallowedSourceError
 from li_ingestion.fetcher import CompliantFetcher, FetchBlockedError
 
-MakeFetcher = Callable[[dict[str, tuple[int, str, bytes]]], tuple[CompliantFetcher, object]]
+MakeFetcher = Callable[..., tuple[CompliantFetcher, object]]
 
 OK = (200, "application/json", b"{}")
 
@@ -56,4 +56,35 @@ def test_missing_url_treated_as_404(make_fetcher: MakeFetcher) -> None:
     url = "https://api.example-registry.test/company/absent"
     fetcher, _ = make_fetcher({})  # transport returns 404 for anything
     with pytest.raises(FetchBlockedError, match="HTTP 404"):
+        fetcher.fetch(url, source_name="registry_mca")
+
+
+def test_redirect_to_offallowlist_host_is_blocked_and_never_contacted(
+    make_fetcher: MakeFetcher,
+) -> None:
+    # An allowlisted URL that 302s to LinkedIn must be blocked at the redirect
+    # target, and the target must NEVER be contacted (this is the whole point).
+    allowed = "https://api.example-registry.test/company/x"
+    evil = "https://linkedin.com/company/x"
+    fetcher, transport = make_fetcher({evil: OK}, {allowed: evil})
+    with pytest.raises(DisallowedSourceError):
+        fetcher.fetch(allowed, source_name="registry_mca")
+    assert transport.calls == [allowed]  # type: ignore[attr-defined]  # evil never fetched
+
+
+def test_redirect_within_allowlist_is_followed_and_records_final_url(
+    make_fetcher: MakeFetcher,
+) -> None:
+    start = "https://careers.example-co.test/jobs"
+    final = "https://careers.example-co.test/jobs/openings"
+    fetcher, _ = make_fetcher({final: (200, "text/html", b"<html>ok</html>")}, {start: final})
+    artifact = fetcher.fetch(start, source_name="careers_pages")
+    assert artifact.url == final  # evidence cites the host the bytes came from
+    assert artifact.body == b"<html>ok</html>"
+
+
+def test_redirect_loop_is_bounded(make_fetcher: MakeFetcher) -> None:
+    url = "https://api.example-registry.test/loop"
+    fetcher, _ = make_fetcher({}, {url: url})  # self-redirect forever
+    with pytest.raises(FetchBlockedError, match="Too many redirects"):
         fetcher.fetch(url, source_name="registry_mca")

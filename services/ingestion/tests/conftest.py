@@ -38,25 +38,39 @@ def robots() -> RobotsPolicy:
 
 
 class FakeTransport:
-    def __init__(self, responses: dict[str, tuple[int, str, bytes]]) -> None:
+    """Never follows redirects (matches the real transport contract). `redirects`
+    maps a URL to a Location target, returned as a 302 so the fetcher follows it."""
+
+    def __init__(
+        self,
+        responses: dict[str, tuple[int, str, bytes]],
+        redirects: dict[str, str] | None = None,
+    ) -> None:
         self.responses = responses
+        self.redirects = redirects or {}
         self.calls: list[str] = []
 
-    def __call__(self, url: str) -> tuple[int, str, bytes]:
+    def __call__(self, url: str) -> tuple[int, str, bytes, str | None]:
         self.calls.append(url)
+        location = self.redirects.get(url)
+        if location is not None:
+            return (302, "text/html", b"", location)
         if url not in self.responses:
-            return (404, "text/plain", b"not found")
-        return self.responses[url]
+            return (404, "text/plain", b"not found", None)
+        status, content_type, body = self.responses[url]
+        return (status, content_type, body, None)
+
+
+MakeFetcher = Callable[..., tuple["CompliantFetcher", FakeTransport]]
 
 
 @pytest.fixture
-def make_fetcher(
-    registry: SourceRegistry, robots: RobotsPolicy
-) -> Callable[[dict[str, tuple[int, str, bytes]]], tuple[CompliantFetcher, FakeTransport]]:
+def make_fetcher(registry: SourceRegistry, robots: RobotsPolicy) -> MakeFetcher:
     def _make(
         responses: dict[str, tuple[int, str, bytes]],
+        redirects: dict[str, str] | None = None,
     ) -> tuple[CompliantFetcher, FakeTransport]:
-        transport = FakeTransport(responses)
+        transport = FakeTransport(responses, redirects)
         fetcher = CompliantFetcher(registry, transport, robots=robots, clock=lambda: FIXED_NOW)
         return fetcher, transport
 

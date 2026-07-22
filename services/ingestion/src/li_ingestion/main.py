@@ -13,16 +13,20 @@ from li_ingestion.fetcher import TransportGet
 
 
 def httpx_transport(timeout: float = 20.0, user_agent: str = "li-bot/0.1") -> TransportGet:
+    # follow_redirects=False is REQUIRED: the CompliantFetcher follows redirects
+    # itself, re-validating each hop against the allowlist first. Letting httpx
+    # follow them would contact off-allowlist hosts before the gate could see them.
     client = httpx.Client(
-        timeout=timeout, headers={"User-Agent": user_agent}, follow_redirects=True
+        timeout=timeout, headers={"User-Agent": user_agent}, follow_redirects=False
     )
 
-    def get(url: str) -> tuple[int, str, bytes]:  # pragma: no cover - network
+    def get(url: str) -> tuple[int, str, bytes, str | None]:  # pragma: no cover - network
         response = client.get(url)
         return (
             response.status_code,
             response.headers.get("content-type", "application/octet-stream"),
             response.content,
+            response.headers.get("location"),
         )
 
     return get

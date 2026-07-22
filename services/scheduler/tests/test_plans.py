@@ -37,3 +37,11 @@ def test_exact_cadence_boundary_is_due() -> None:
         RefreshTarget("c1", "news_funding", "https://x.test", NOW - DEFAULT_CADENCE["news_funding"])
     ]
     assert len(due_jobs(targets, now=NOW)) == 1
+
+
+def test_naive_last_refreshed_does_not_raise() -> None:
+    # A driver could hand back a naive timestamp; mixing it with an aware `now`
+    # must not raise a subtraction TypeError (naive is treated as UTC).
+    naive_stale = datetime(2026, 1, 1, 0, 0)  # intentional naive input
+    targets = [RefreshTarget("c1", "news_funding", "https://x.test", naive_stale)]
+    assert len(due_jobs(targets, now=NOW)) == 1
