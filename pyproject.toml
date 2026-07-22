@@ -1,0 +1,42 @@
+[project]
+name = "lead-intelligence"
+version = "0.1.0"
+description = "AI Lead Intelligence Platform — warm, evidence-cited Indian-company accounts"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["libs/*", "services/*"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "pytest>=8",
+    "pre-commit>=3.7",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = [
+    "libs/core/src", "libs/db/src", "libs/queue/src", "libs/llm/src",
+    "libs/compliance/src", "libs/telemetry/src",
+    "services/scheduler/src", "services/ingestion/src", "services/resolver/src",
+    "services/agents/src", "services/delivery/src", "services/api/src",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["libs", "services"]
+norecursedirs = [".venv", "node_modules", ".git"]
+addopts = "-q"

@@ -12,6 +12,10 @@ Interview decision #5 is undecided. PROJECT_SPEC.md §7 scores three candidates 
 manufacturers/exporters, funded/scaling SMBs) but the pick is **deferred to founder validation
 calls**, not settled by scoring.
 **Resolve via:** discovery calls (ASSUMPTIONS.md#market-demand). Outcome becomes a new ADR.
+**Fast path (design partner):** if a committed design partner emerges first, their demanded
+niche becomes the concept-proof niche immediately (ROADMAP.md#design-partner) — but one
+customer's demand does not settle Q1. The niche ADR still requires the calls to show ≥3
+buyers in that niche; a single-partner sample overfits.
 
 ### Q2. Pricing model — retainer vs ₹/account vs hybrid {#pricing}
 

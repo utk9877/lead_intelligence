@@ -23,7 +23,9 @@ supply person-level contact data ourselves (ADR-005), because they can bridge th
 **Supports:** ADR-003, ADR-005.
 **Validation:** In discovery calls, explicitly test the company-level-only offer. If buyers say
 "useless without contacts," the assumption fails → escalate the contact-partner decision
-(QUESTIONS.md#contact-data) before P1.
+(QUESTIONS.md#contact-data) before P1. The strongest test is the P0 design-partner concept
+proof (ROADMAP.md#design-partner): a real buyer accepting and working company-level-only
+accounts validates this directly.
 
 ### A3. MCA/GST API costs stay bootstrap-viable at delivery volume {#api-cost}
 
@@ -31,8 +33,9 @@ supply person-level contact data ourselves (ADR-005), because they can bridge th
 remain cheap enough that cost-per-researched-account leaves a workable margin as volume grows.
 **Supports:** ADR-004.
 **Validation:** P0 — obtain real per-call pricing from ≥2 vendors; model cost-per-account at
-target N. Recompute whenever pricing or volume changes. Tie to PROJECT_SPEC.md cost-per-account
-metric.
+target N; then upgrade the model to a **measured** cost-per-account on the design-partner
+concept-proof deliveries (ROADMAP.md#design-partner). Recompute whenever pricing or volume
+changes. Tie to PROJECT_SPEC.md cost-per-account metric.
 **Early signal (research round two, 2026-07-19):** supportive — Attestr publicly documents
 MCA/CIN and GSTIN endpoints, and indicative marketplace pricing (~₹10–100 per business check,
 Signzy class) fits the envelope. **Caveat to test in the vendor comparison:** some vendors
@@ -45,7 +48,8 @@ tiers with no platform commit, or this assumption weakens.
 promised N researched accounts per customer per month at acceptable quality.
 **Supports:** ADR-002, ROADMAP P1.
 **Validation:** P1 — time-and-motion on the first real deliveries; measure human-minutes per
-researched account and the QA reject rate. If capacity < promised N at quality, adjust N,
+researched account and the QA reject rate. An early read comes from the P0 concept-proof
+deliveries (ROADMAP.md#design-partner). If capacity < promised N at quality, adjust N,
 pricing, or agent tooling before scaling customers. Related risk: RISKS.md#bus-factor,
 RISKS.md#llm-cost.
 

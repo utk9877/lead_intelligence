@@ -4,3 +4,16 @@
 # PDFs (market research / investor & customer documents) are derived artifacts;
 # the Markdown living docs remain the committed source of truth.
 *.pdf
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Local env & tooling
+.env
+node_modules/
+dist/

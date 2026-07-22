@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, "build/**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-packages
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy libs services
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: li
+          POSTGRES_PASSWORD: li_test_password
+          POSTGRES_DB: lead_intelligence_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U li -d lead_intelligence_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://li:li_test_password@localhost:5432/lead_intelligence_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-packages
+      - run: uv run pytest
+
+  # Chunk 1 adds: Alembic migration drift check + li-compliance policy tests (they run
+  # inside pytest, but drift check becomes its own step).
+  # Chunk 5 adds: frontend lint + build + Playwright e2e for services/qa-console.
+  # Chunk 6 adds: stub-LLM end-to-end smoke job (seed -> pass 1-3 -> QA -> card render).
