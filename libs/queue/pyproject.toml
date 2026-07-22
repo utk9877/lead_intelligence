@@ -3,7 +3,13 @@ name = "li-queue"
 version = "0.1.0"
 description = "Driver-agnostic job queue (Procrastinate now, SQS-capable later)"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "li-core",
+    "procrastinate>=2.9",
+]
+
+[tool.uv.sources]
+li-core = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

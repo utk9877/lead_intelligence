@@ -3,7 +3,10 @@ name = "li-core"
 version = "0.1.0"
 description = "Domain models, config, CIN/GSTIN identifier rules"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+]
 
 [build-system]
 requires = ["hatchling"]

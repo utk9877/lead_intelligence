@@ -3,7 +3,9 @@ name = "li-telemetry"
 version = "0.1.0"
 description = "Structured logging, tracing, metrics"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "structlog>=24.1",
+]
 
 [build-system]
 requires = ["hatchling"]
