@@ -16,11 +16,25 @@ docs  manual  productized  self-serve
 
 **Goal:** Establish the design scaffold and choose a niche to bet on.
 **Work:** These living documents; 15–20 buyer discovery calls; registry-API pricing/coverage
-comparison; niche validation (PROJECT_SPEC.md §7, QUESTIONS.md#niche).
+comparison; niche validation (PROJECT_SPEC.md §7, QUESTIONS.md#niche); the single-design-partner
+concept proof below, as soon as one committed buyer exists.
+
+**Concept proof — single design partner {#design-partner}:** the moment the calls produce one
+committed buyer (paying, or a formally committed pilot), run the entire loop end-to-end for
+that one customer, in the niche *they* demand: manual scripts + agents, human QA on every
+account, delivery via Slack/email. No pipeline is built for this — it is the P1 shape at
+n = 1. Purpose: prove the concept end-to-end and convert two gate items from models into
+measurements — real cost-per-researched-account (ASSUMPTIONS.md#api-cost) and whether
+company-level-only accounts are sellable (ASSUMPTIONS.md#company-level-sellable). One design
+partner does **not** settle the niche pick by itself (QUESTIONS.md#niche — single-customer
+overfit risk); discovery calls continue in parallel.
+
 **Learning gate → P1:** a chosen niche backed by real calls; ≥3 buyers willing to pay for a
-pilot (ASSUMPTIONS.md#market-demand); a validated cost-per-account model
-(ASSUMPTIONS.md#api-cost); founder-approved ADR-003/004/005 (QUESTIONS.md#adr-approval).
-**Revenue gate:** none (pre-revenue).
+pilot (ASSUMPTIONS.md#market-demand); an end-to-end concept proof — ≥1 batch of warm,
+evidence-cited accounts delivered to the design partner with cost-per-account measured, not
+modelled (ASSUMPTIONS.md#api-cost); founder-approved ADR-003/004/005
+(QUESTIONS.md#adr-approval).
+**Revenue gate:** none (pre-revenue; design-partner payment welcome but not required to exit P0).
 
 ## P1 — Manual service with agent leverage
 
