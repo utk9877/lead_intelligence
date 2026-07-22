@@ -36,7 +36,7 @@ We do **not** sell a database or a signals dashboard. We sell **delivered intell
 Contrast with the direct competitor: **Pintel sells a database + signals platform; we sell the
 worked conclusion.** (COMPETITOR_ANALYSIS.md §6, §"Where We Win".)
 
-## 4. Warm-signal definitions
+## 4. Warm-signal definitions {#warm-signals}
 
 Per ADR-003 (**proposed**), Phase 1 ships two signal types, both buildable now from public
 data + LLMs:

@@ -1,103 +1,109 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this
+repository.
 
 ## What this repository is
 
-A **Phase-0 living-documents scaffold** for "Lead Intelligence" — a planned AI lead-intelligence
-platform delivering warm, researched, evidence-cited *Indian company* accounts to B2B sellers
-targeting India.
+The monorepo for **Lead Intelligence** — an AI lead-intelligence platform delivering warm,
+researched, evidence-cited *Indian company* accounts to B2B sellers targeting India.
 
-**There is no code, no build, no tests, and no infrastructure.** There are no build/lint/test
-commands to run. The repository contains Markdown design documents only. Architecture exists here
-as *design content*, not implementation. Do not scaffold code, add tooling, or create a package
-manifest unless explicitly asked — Phase 0 is deliberately design-only (see `ROADMAP.md`).
+Two layers, one repo:
 
-## Architecture: a cross-linked document graph
+1. **`docs/` — the living strategy docs.** Spec, competitor analysis, ADRs, assumptions,
+   risks, open questions, roadmap, architecture blueprint. They are the source of truth;
+   code follows them. Changing one usually obliges updating the docs that reference it.
+2. **Code — a uv workspace** (Python 3.12) being built against `docs/ARCHITECTURE.md` in
+   chunks (build started 2026-07-22). Scope is **P1 activation only**: full pipeline behind a
+   human QA gate, local Docker Compose, **no AWS/Kubernetes until a design partner signs**
+   (`docs/ROADMAP.md#design-partner`). Don't build ahead of the phase gates.
 
-The "system" is the documents and the links between them. Each file owns one concern, and the
-others cite it rather than restating it. Changing one document usually obliges you to update the
-documents that reference it.
+## Commands
 
-| File | Owns |
-|---|---|
-| `PROJECT_SPEC.md` | Vision, ICP, "delivered intelligence" positioning, warm-signal definitions, packaging, success metrics, niche shortlist (§7) |
-| `COMPETITOR_ANALYSIS.md` | Competitor teardowns (Clay, Common Room, Apollo, ZoomInfo, PDL, **Pintel.ai** = direct, Slintel/6sense, Draup, Tofler/ZaubaCorp) + "Where We Win" |
-| `ADR/` | The decision spine — ADR-001…005, all **accepted** 2026-07-16. `ADR-000-template.md` is the template |
-| `ASSUMPTIONS.md` | A1–A6: what must be true, each with a validation method |
-| `RISKS.md` | R1–R6: each with a mitigation; re-checked at every phase gate |
-| `QUESTIONS.md` | Q1–Q9 open decisions, so nothing is silently dropped |
-| `ROADMAP.md` | P0→P3 phases, each with a **learning gate** and a **revenue gate** |
-| `ARCHITECTURE.md` | Implementation blueprint (services, monorepo tree, Docker/K8s, AWS path) — still design content, phase-gated activation |
+```bash
+make sync       # uv sync --all-packages
+make test       # pytest across libs/ and services/
+make lint       # ruff check + format check + mypy (strict)
+make fmt        # auto-format
+make up/down    # docker compose: Postgres 16 + pgvector, MinIO (requires Docker Desktop)
+make migrate    # Alembic — arrives chunk 1
+make seed       # fictional seed data — arrives chunk 6
+```
 
-Reading order for orientation: `PROJECT_SPEC.md` → `COMPETITOR_ANALYSIS.md` → `ADR/` →
-`ASSUMPTIONS.md` → `RISKS.md` → `QUESTIONS.md` → `ROADMAP.md`.
+Run a single test: `uv run pytest libs/core/tests/test_li_core_import.py -q`.
+CI (`.github/workflows/ci.yml`) runs lint + tests (Postgres service container) on every PR
+and on `build/**` branches; nothing merges red.
+
+## Build workflow (chunked, agent-reviewed)
+
+The approved build plan is 7 chunks: 0 scaffold/CI → 1 libs+DB → 2 ingestion+snapshots →
+3 resolver → 4 li-llm + 3-pass agents → 5 API + QA console → 6 delivery + e2e smoke →
+7 AWS (only when a design partner signs). Each chunk: branch `build/chunk-N-<name>` →
+implement with tests → independent testing-agent pass (adversarial tests from spec) →
+review pass, fix until zero confirmed findings → PR → CI green → merge.
+
+## Architecture (see docs/ARCHITECTURE.md for the full blueprint)
+
+`scheduler → ingestion (source adapters, evidence snapshots) → resolver (CIN/GSTIN anchoring)
+→ agents (3-pass: trigger classify / deep-fit research / rubric scoring) → QA console (human
+gate) → delivery (Slack/CRM)`. Every arrow is a queue boundary (Procrastinate on Postgres).
+One Postgres 16 + pgvector database holds the company graph, job queue, cost ledger, and
+embeddings. Evidence pages are snapshotted immutably to MinIO/S3 — citations never dangle.
+Shared libs (`li-core`, `li-db`, `li-queue`, `li-llm`, `li-compliance`, `li-telemetry`) are
+imported, never networked.
 
 ## The accepted decisions that constrain all work
 
-These five ADRs are accepted and bound any proposal you make. Contradicting one requires a new
-ADR, not an edit in passing.
+Contradicting one requires a new ADR, not an edit in passing (`docs/ADR/`, all accepted
+2026-07-16):
 
-- **ADR-001** — Indian companies as the leads; into-India B2B sellers as customers. The moat is
-  registry anchoring on CIN/GSTIN (universal Indian company identifiers the US lacks).
-- **ADR-002** — Productized service *before* self-serve platform. The service is how we learn what
-  "warm" means; the platform is how we scale later.
-- **ADR-003** — Ship two signal types only: buying triggers + deep-fit reasoning. **Lookalikes and
-  third-party intent are deferred**, with revisit triggers in `QUESTIONS.md#deferred-signals`.
-- **ADR-004** — Data via pay-per-call registry APIs (Attestr/Surepass/Karza/Signzy class) + own
-  compliant crawling. **No enterprise data licenses** (bootstrap constraint).
-- **ADR-005** — **Company-level intelligence only.** Person/contact data only from compliant
-  third-party partners.
+- **ADR-001** — Indian companies as leads; registry anchoring on CIN/GSTIN is the moat.
+- **ADR-002** — Productized service before self-serve platform. The internal QA console is
+  the only UI; customers get delivery, not logins.
+- **ADR-003** — Two signal types only: buying triggers + deep-fit reasoning. Lookalikes and
+  third-party intent are deferred (`docs/QUESTIONS.md#deferred-signals`).
+- **ADR-004** — Pay-per-call registry APIs + own compliant crawling; no enterprise licenses.
+  Registry vendor is unchosen (`docs/QUESTIONS.md#api-vendor`) — vendor adapters stay
+  fixture-stubbed behind the adapter interface until it is.
+- **ADR-005** — **Company-level intelligence only.** The hard line below.
 
 ## Non-obvious conventions you must follow
 
-**Sourcing discipline.** Unverified claims carry the literal marker
-`[source: internal research — verify]`. **Never fabricate a URL or citation.** Only give a URL when
-the source is trivially and genuinely known. This rule is load-bearing — much of
-`COMPETITOR_ANALYSIS.md` and the DPDP legal position in `RISKS.md#dpdp` rests on unverified
-research and is flagged as such.
+**The compliance boundary is a hard line (ADR-005, `docs/RISKS.md#dpdp`, `#data-tos`).**
+Never propose scraping LinkedIn/Naukri or any person-level data. Job posts are used at the
+*posting* level only — adapter output types must have no name/email fields. No person-level
+columns in any migration (schema review is the enforcement point). Every fetcher passes
+`li-compliance.allowed_sources`; tests that assert these rejections are CI-load-bearing —
+never weaken them to make a build pass.
 
-**Economics are placeholders, never commitments.** All pricing, cost-per-account, margin, and the
-"N accounts/month" figure are explicitly unvalidated (`PROJECT_SPEC.md` §5,
-`QUESTIONS.md#pricing`). Anywhere they appear — especially in external-facing material — they must
-be visibly marked as illustrative/pending validation.
+**Sourcing discipline (docs).** Unverified claims carry the literal marker
+`[source: internal research — verify]`. Never fabricate a URL or citation. In code, the same
+rule is structural: a claim that doesn't join an evidence row must fail rendering.
 
-**The compliance boundary is a hard line (ADR-005 + `RISKS.md#dpdp`, `#data-tos`).** Company-level
-facts (CIN, GSTIN, filings, funding, org-level hiring) are not personal data. Do **not** propose
-scraping LinkedIn, Naukri, or any person-level data. Job posts are used at the *posting* level as a
-hiring signal, never as person records. The DPDP Act 2023 §3(c)(ii) public-data exemption is in
-genuine tension with Aug-2024 government signalling that scraping public personal data may still
-trigger obligations — that ambiguity is precisely why the company-level boundary exists.
+**Economics are placeholders.** All pricing/cost/margin figures in `docs/` are unvalidated;
+anywhere they surface they must be visibly marked illustrative. The real number comes from
+the cost ledger (`li-llm/ledger.py` when it lands), not estimates.
 
-**Cross-references use `FILE.md#anchor`** (e.g. `RISKS.md#dpdp`). Explicit anchors such as
-`{#market-demand}`, `{#dpdp}`, `{#niche}` are link targets — renaming or removing one breaks
-inbound links from other documents. Grep for an anchor before changing it.
+**Cross-references in `docs/` use `FILE.md#anchor`** — the docs are deliberately flat
+siblings in `docs/` so those links hold. Explicit anchors like `{#dpdp}` are link targets;
+grep before renaming. ADR status lives in three places (ADR front-matter, its status-history
+section, the README decision table) — a status change edits all of them.
 
-**Keep status tables in sync.** ADR status appears in both the ADR file's front-matter *and* its
-"Status history" section, *and* in the decision table in `README.md`. A status change means editing
-all of them.
+**Gate discipline (`docs/ROADMAP.md`).** Phases advance on learning + revenue gates, never
+time. Deliberately not built now: Kubernetes/EKS, Terraform apply, SQS driver, CRM auto-sync,
+customer-facing UI, Prometheus/Grafana, lookalikes/intent. The K8s/Terraform *designs* in
+ARCHITECTURE.md stay design until their gates.
 
-**Gate discipline (`ROADMAP.md`).** Phases advance only when *both* the learning and revenue gates
-are met — never because time passed. Don't propose work that assumes a later phase has been
-entered.
-
-**Open questions stay open.** `QUESTIONS.md` items (notably the niche pick, Q1) are deliberately
-undecided pending founder validation calls. Present analysis as a recommendation to test, not a
-decision — the niche scoring in `PROJECT_SPEC.md` §7 explicitly is not a decision.
+**Seed/fixture data is fictional only** — obviously fake companies, never real records.
 
 ## Generated deliverables
 
-One PDF sits in the repo root: `Lead_Intelligence_Companion_Analysis.pdf` (market research +
-architecture + validation verdict, 2026-07-19). Three earlier stakeholder PDFs (Business Plan,
-Execution Strategy, Software) were deliberately deleted on 2026-07-19 as stale snapshots — they
-are regenerated from Markdown when the strategy stabilizes, not maintained. PDFs are produced
-from self-contained styled HTML converted with headless Chrome, since this machine has no
-pandoc/LaTeX/weasyprint:
+PDFs (e.g. `Lead_Intelligence_Companion_Analysis.pdf`) are gitignored derived artifacts,
+regenerated from Markdown via headless Chrome when strategy stabilizes:
 
 ```
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu \
   --no-pdf-header-footer --print-to-pdf="<output>.pdf" "<source>.html"
 ```
 
-They are derived artifacts — the Markdown documents remain the source of truth. If strategy
-changes, update the Markdown first, then regenerate.
+Markdown remains the source of truth; update docs first, then regenerate.

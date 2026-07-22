@@ -1,51 +1,55 @@
-# AI Lead Intelligence Platform — Living Docs
+# AI Lead Intelligence Platform
 
-Design scaffold for an **AI Lead Intelligence Platform**: warm, researched, evidence-cited
-Indian-company accounts, delivered to B2B sellers targeting the Indian market. We are in
-**Phase 0 — design, not build**: these are working documents that every subsequent iteration
-reads from and edits. No code or infrastructure yet; architecture lives here as *design
-content* only.
+Warm, researched, **evidence-cited Indian-company accounts**, delivered to B2B sellers
+targeting the Indian market. We sell the worked conclusion — "why this account, why now,
+with proof" — not a database.
 
-## The documents
+The build against [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) started 2026-07-22:
+P1-activation scope (full pipeline behind a human QA gate), local Docker Compose only until a
+design partner signs. Strategy lives in the living docs under [`docs/`](docs/) — they remain
+the source of truth; code follows them.
 
-| Document | Purpose |
-|----------|---------|
-| [`PROJECT_SPEC.md`](PROJECT_SPEC.md) | Vision, ICP, "delivered intelligence" positioning, warm-signal defs, packaging (placeholder economics), success metrics, and the **niche recommendation** |
-| [`COMPETITOR_ANALYSIS.md`](COMPETITOR_ANALYSIS.md) | Teardowns (Clay, Common Room, Apollo, ZoomInfo, PDL, **Pintel**, Slintel/6sense, Draup, Tofler/ZaubaCorp) + "where we win" |
-| [`ASSUMPTIONS.md`](ASSUMPTIONS.md) | What must be true, each with a validation method |
-| [`RISKS.md`](RISKS.md) | Prioritized risks, each with a mitigation |
-| [`QUESTIONS.md`](QUESTIONS.md) | Every open decision, so nothing is dropped |
-| [`ROADMAP.md`](ROADMAP.md) | P0→P3 with revenue + learning gates |
-| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Implementation blueprint: services, monorepo tree, Docker/Kubernetes design, AWS hosting path (design content — nothing built) |
-| [`ADR/`](ADR/) | Architecture Decision Records — the decision spine |
+## Quickstart (dev)
 
-## Reading order
+```bash
+make sync    # install the uv workspace (needs: uv)
+make up      # Postgres 16 + pgvector, MinIO (needs: Docker Desktop)
+make test    # run all tests
+make lint    # ruff + mypy
+```
 
-1. **`PROJECT_SPEC.md`** — what we're building and for whom.
-2. **`COMPETITOR_ANALYSIS.md`** — why it's defensible.
-3. **`ADR/`** — the decisions everything else cites.
-4. **`ASSUMPTIONS.md`** → **`RISKS.md`** — what must hold, what could break it.
-5. **`QUESTIONS.md`** — what's still open.
-6. **`ROADMAP.md`** — how it gets built, and the gates.
+`make migrate` / `make seed` arrive in later build chunks. Copy `.env.example` → `.env` first.
+
+## Layout
+
+| Path | Contents |
+|---|---|
+| `docs/` | The living docs — spec, competitor analysis, ADRs, assumptions, risks, questions, roadmap, architecture. Read `docs/PROJECT_SPEC.md` first. |
+| `libs/` | Shared Python libraries: `li-core`, `li-db`, `li-queue`, `li-llm`, `li-compliance`, `li-telemetry` |
+| `services/` | Pipeline services: `scheduler`, `ingestion`, `resolver`, `agents`, `delivery`, `api` (+ `qa-console`, chunk 5) |
+| `.github/workflows/` | CI: ruff, mypy, pytest (Postgres service container) on every PR |
+
+One uv workspace, one lockfile. Python 3.12. Postgres 16 + pgvector is the only database.
 
 ## Decision status (ADRs)
 
 | ADR | Decision | Status |
 |-----|----------|--------|
-| [001](ADR/ADR-001-india-market-leads.md) | Indian-company leads; into-India B2B sellers as customers | ✅ **accepted** |
-| [002](ADR/ADR-002-service-before-platform.md) | Productized service before self-serve platform | ✅ **accepted** |
-| [003](ADR/ADR-003-signal-phasing.md) | Signal phasing — triggers + deep-fit first; intent/lookalikes deferred | ✅ **accepted** |
-| [004](ADR/ADR-004-payper-call-data-apis.md) | Data via pay-per-call registry APIs + own compliant crawling | ✅ **accepted** |
-| [005](ADR/ADR-005-company-level-first.md) | Company-level intelligence first; contacts via compliant partners | ✅ **accepted** |
+| [001](docs/ADR/ADR-001-india-market-leads.md) | Indian-company leads; into-India B2B sellers as customers | ✅ **accepted** |
+| [002](docs/ADR/ADR-002-service-before-platform.md) | Productized service before self-serve platform | ✅ **accepted** |
+| [003](docs/ADR/ADR-003-signal-phasing.md) | Signal phasing — triggers + deep-fit first; intent/lookalikes deferred | ✅ **accepted** |
+| [004](docs/ADR/ADR-004-payper-call-data-apis.md) | Data via pay-per-call registry APIs + own compliant crawling | ✅ **accepted** |
+| [005](docs/ADR/ADR-005-company-level-first.md) | Company-level intelligence first; contacts via compliant partners | ✅ **accepted** |
 
-> All five ADRs are now **accepted** (founder approval 2026-07-16). ADR-003 was accepted with
-> the note that it diverges from the original "all four signals" preference — the deferral of
-> lookalikes/intent is tracked in QUESTIONS.md#deferred-signals with revisit triggers.
-> [`ADR/ADR-000-template.md`](ADR/ADR-000-template.md) is the template for new records.
+> All five accepted (founder approval 2026-07-16). ADR-003's deferral of lookalikes/intent is
+> tracked in `docs/QUESTIONS.md#deferred-signals` with revisit triggers.
+> [`docs/ADR/ADR-000-template.md`](docs/ADR/ADR-000-template.md) is the template.
 
 ## Conventions
 
-- Cross-references use the form `FILE.md#anchor` (e.g. `RISKS.md#dpdp`).
+- Cross-references inside `docs/` use the form `FILE.md#anchor` (e.g. `RISKS.md#dpdp`).
 - Economics and figures marked as **placeholders** are for validation, not commitments.
-- Sourcing: research is transcribed as authoritative; unverified claims carry
-  `[source: internal research — verify]` — never a fabricated URL.
+- Sourcing: unverified claims carry `[source: internal research — verify]` — never a
+  fabricated URL.
+- **Compliance is a hard line:** company-level data only (ADR-005). No person-level fields in
+  any schema; `li-compliance` gates every fetch.

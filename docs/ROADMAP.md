@@ -46,8 +46,8 @@ person reviews and signs off every delivered account (ADR-002).
 scored, evidence-cited accounts/month; measure precision-of-"warm," meetings booked per 100
 accounts, human-minutes/account, and cost/account (PROJECT_SPEC.md §6).
 **Learning gate → P2:** precision-of-"warm" acceptable to customers
-(ASSUMPTIONS.md#signal-strength); delivery capacity understood (ASSUMPTIONS.md#delivery-
-capacity); repeatable, documented delivery runbook.
+(ASSUMPTIONS.md#signal-strength); delivery capacity understood
+(ASSUMPTIONS.md#delivery-capacity); repeatable, documented delivery runbook.
 **Revenue gate → P2:** 3–5 paying customers retained; unit economics (cost/account vs price)
 positive or clearly improvable.
 

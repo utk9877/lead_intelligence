@@ -1,7 +1,8 @@
 # Architecture — Implementation Design
 
-> **Status:** Phase-0 design content (no code or infrastructure exists yet — per ROADMAP.md).
-> This document is the implementation-level blueprint the build phases will code against:
+> **Status:** implementation blueprint; the build against it began 2026-07-22 (chunked build
+> plan, P1-activation scope, local-only until a design partner signs).
+> This document is the implementation-level blueprint the build phases code against:
 > service decomposition, the full monorepo tree, container/Kubernetes design, and the AWS
 > hosting path. It elaborates the P2 pipeline sketch in `ROADMAP.md` and §3 of the Companion
 > Analysis; it locks nothing — deviations get recorded as ADRs.
@@ -115,10 +116,11 @@ lead-intelligence/
 │       ├── build-push.yml            # build images → ECR on main merge
 │       └── deploy.yml                # staging auto, prod on tag (see §8)
 │
-├── docs/                             # ← the living docs (PROJECT_SPEC.md, ADR/, …) + this file
-│   └── architecture/
-│       ├── ARCHITECTURE.md           # this document
-│       └── diagrams/                 # source files for any rendered diagrams
+├── docs/                             # ← the living docs, flat so FILE.md#anchor links hold
+│   ├── PROJECT_SPEC.md · ROADMAP.md · ASSUMPTIONS.md · RISKS.md · QUESTIONS.md
+│   ├── COMPETITOR_ANALYSIS.md
+│   ├── ARCHITECTURE.md               # this document
+│   └── ADR/
 │
 ├── libs/
 │   ├── core/                         # li-core

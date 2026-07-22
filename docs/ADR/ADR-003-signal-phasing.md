@@ -3,7 +3,7 @@
 - **Status:** accepted *(founder-approved 2026-07-16; note this diverged from the original "all four signal types" preference)*
 - **Date:** 2026-07-16
 - **Deciders:** Founders (solo/duo)
-- **Related:** ADR-002; PROJECT_SPEC.md#warm-signals; ASSUMPTIONS.md#company-level-sellable; RISKS.md#intent-coverage
+- **Related:** ADR-002; PROJECT_SPEC.md#warm-signals; ASSUMPTIONS.md#company-level-sellable; QUESTIONS.md#deferred-signals
 
 ## Context
 
@@ -48,7 +48,7 @@ silent drop — both live in QUESTIONS.md with a revisit trigger.
 - **Negative / cost:** no lookalike/intent story in early sales conversations — must be framed
   as roadmap, not gap.
 - **Follow-on:** creates ASSUMPTIONS.md#company-level-sellable (that triggers + deep-fit are
-  enough to sell) and RISKS.md#intent-coverage.
+  enough to sell) and the revisit triggers in QUESTIONS.md#deferred-signals.
 
 ## Status history
 
