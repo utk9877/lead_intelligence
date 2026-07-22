@@ -3,7 +3,12 @@ name = "li-compliance"
 version = "0.1.0"
 description = "Allowed-sources registry, robots policy, person-data guards"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "li-core",
+]
+
+[tool.uv.sources]
+li-core = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

@@ -3,7 +3,15 @@ name = "li-db"
 version = "0.1.0"
 description = "SQLAlchemy ORM, Alembic migrations, repositories over the company graph"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "li-core",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.1",
+]
+
+[tool.uv.sources]
+li-core = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]
