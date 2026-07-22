@@ -5,6 +5,12 @@ rejected before it can reach the graph. The stance is deliberately strict: a fal
 positive costs a human review; a false negative crosses the compliance boundary.
 Company PAN is allowed (it is a company identifier and embedded in GSTIN); email
 addresses of any kind are not — company-level intelligence needs none.
+
+Known residual: bare personal *names* embedded in free-text values (e.g. a scraped
+job title "Report to CEO A. Person") cannot be detected by pattern alone and are not
+caught here. Adapters mitigate this structurally by extracting only company-level
+fields (posting titles/counts, never free-form recruiter text); the human QA gate is
+the backstop. Emails and Indian mobile numbers in values ARE caught.
 """
 
 import re
