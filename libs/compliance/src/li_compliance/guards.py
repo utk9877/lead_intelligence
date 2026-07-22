@@ -8,56 +8,68 @@ addresses of any kind are not — company-level intelligence needs none.
 """
 
 import re
+import unicodedata
 from collections.abc import Mapping, Sequence
 
 from li_compliance.errors import PersonDataError
 
-# Keys are normalized (lowercased, non-alphanumeric stripped) before matching.
-_FORBIDDEN_KEYS = frozenset(
+# Keys are normalized (NFKC, lowercased, everything but a-z stripped — so
+# "Contact-Email", "email2", and fullwidth spellings all normalize) and then
+# matched two ways: substring for unambiguous person tokens, exact for short
+# tokens that would false-positive as substrings (e.g. "din" in "coordinates").
+_FORBIDDEN_KEY_SUBSTRINGS = (
+    "firstname",
+    "lastname",
+    "middlename",
+    "fullname",
+    "personname",
+    "contactname",
+    "contactperson",
+    "email",
+    "phone",
+    "mobile",
+    "whatsapp",
+    "linkedin",
+    "designation",
+    "dateofbirth",
+    "aadhaar",
+    "aadhar",
+    "director",
+    "founder",
+)
+_FORBIDDEN_KEYS_EXACT = frozenset(
     {
-        "firstname",
-        "lastname",
-        "middlename",
-        "fullname",
-        "personname",
-        "contactname",
-        "contactperson",
-        "email",
-        "emailaddress",
-        "contactemail",
-        "personalemail",
-        "phone",
-        "phonenumber",
-        "contactphone",
-        "mobile",
-        "mobilenumber",
-        "whatsapp",
-        "linkedin",
-        "linkedinurl",
-        "designationholder",
         "dob",
-        "dateofbirth",
-        "aadhaar",
-        "aadhar",
         "din",  # director identification number — a person identifier
+        "ceo",
+        "cfo",
+        "cto",
     }
 )
 
 _EMAIL_RE = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
-_IN_MOBILE_RE = re.compile(r"(?<!\d)(?:\+91[\s-]?)?[6-9]\d{9}(?!\d)")
+# Indian mobiles as commonly written: optional +91/91 prefix, then ten digits
+# starting 6-9, tolerating space/dot/dash separators between digit groups.
+_IN_MOBILE_RE = re.compile(r"(?<!\d)(?:\+?91[\s.\-]{0,2})?[6-9](?:[\s.\-]?\d){9}(?!\d)", re.ASCII)
 
-_KEY_NORMALIZE_RE = re.compile(r"[^a-z0-9]+")
+_KEY_NORMALIZE_RE = re.compile(r"[^a-z]+")
 
 
 def _normalize_key(key: str) -> str:
-    return _KEY_NORMALIZE_RE.sub("", key.lower())
+    return _KEY_NORMALIZE_RE.sub("", unicodedata.normalize("NFKC", key).lower())
+
+
+def _key_is_forbidden(normalized: str) -> bool:
+    if normalized in _FORBIDDEN_KEYS_EXACT:
+        return True
+    return any(token in normalized for token in _FORBIDDEN_KEY_SUBSTRINGS)
 
 
 def _walk(value: object, path: str) -> None:
     if isinstance(value, Mapping):
         for key, child in value.items():
             key_str = str(key)
-            if _normalize_key(key_str) in _FORBIDDEN_KEYS:
+            if _key_is_forbidden(_normalize_key(key_str)):
                 raise PersonDataError(
                     f"Person-shaped key {key_str!r} at {path or 'payload root'} (ADR-005)"
                 )

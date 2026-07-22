@@ -6,20 +6,35 @@ weaken this list to make a build pass — that is the compliance boundary moving
 
 from li_db.orm import Base
 
+# Kept in step with li_compliance.guards: what that library rejects at the ingest
+# boundary, the schema must reject as a column. Substrings catch snake_case columns;
+# short exact tokens (din/dob/ceo…) would false-positive as substrings (coordinates,
+# random_dob…) so they match a normalized column name exactly.
 FORBIDDEN_COLUMN_SUBSTRINGS = (
     "email",
     "phone",
     "mobile",
+    "whatsapp",
     "first_name",
     "last_name",
+    "middle_name",
     "full_name",
     "person",
-    "contact_",
+    "contact_name",
+    "contact_person",
     "linkedin",
+    "designation",
+    "director",
+    "founder",
     "date_of_birth",
     "aadhaar",
     "aadhar",
 )
+FORBIDDEN_COLUMN_EXACT = frozenset({"din", "dob", "ceo", "cfo", "cto", "name_of_director"})
+
+
+def _normalize_column(name: str) -> str:
+    return name.lower()
 
 
 def test_no_person_shaped_columns_anywhere() -> None:
@@ -27,7 +42,8 @@ def test_no_person_shaped_columns_anywhere() -> None:
         f"{table.name}.{column.name}"
         for table in Base.metadata.tables.values()
         for column in table.columns
-        if any(bad in column.name.lower() for bad in FORBIDDEN_COLUMN_SUBSTRINGS)
+        if (norm := _normalize_column(column.name)) in FORBIDDEN_COLUMN_EXACT
+        or any(bad in norm for bad in FORBIDDEN_COLUMN_SUBSTRINGS)
     ]
     assert violations == [], f"person-shaped columns found (ADR-005): {violations}"
 

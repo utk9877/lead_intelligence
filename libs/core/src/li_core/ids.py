@@ -18,14 +18,17 @@ from datetime import date
 
 from li_core.errors import InvalidIdentifierError
 
-_CIN_RE = re.compile(r"^([LU])(\d{5})([A-Z]{2})(\d{4})([A-Z]{3})(\d{6})$")
-_GSTIN_RE = re.compile(r"^(\d{2})([A-Z]{5}\d{4}[A-Z])([1-9A-Z])Z([0-9A-Z])$")
+# re.ASCII so \d matches only 0-9 — never Devanagari/fullwidth digits, which would
+# otherwise pollute the canonical identifier and defeat registry-anchor dedup.
+_CIN_RE = re.compile(r"^([LU])(\d{5})([A-Z]{2})(\d{4})([A-Z]{3})(\d{6})$", re.ASCII)
+_GSTIN_RE = re.compile(r"^(\d{2})([A-Z]{5}\d{4}[A-Z])([1-9A-Z])Z([0-9A-Z])$", re.ASCII)
 _ALPHANUM = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 _FIRST_COMPANIES_ACT_YEAR = 1850
 
 
 @dataclass(frozen=True, slots=True)
 class ParsedCin:
+    normalized: str  # canonical form (stripped, upper-cased) — store THIS, not the raw input
     listing: str  # "L" listed / "U" unlisted
     industry_code: str
     state_code: str
@@ -36,6 +39,7 @@ class ParsedCin:
 
 @dataclass(frozen=True, slots=True)
 class ParsedGstin:
+    normalized: str  # canonical form (stripped, upper-cased) — store THIS, not the raw input
     state_code: str
     pan: str
     entity_code: str
@@ -51,6 +55,7 @@ def parse_cin(raw: str) -> ParsedCin:
     if not _FIRST_COMPANIES_ACT_YEAR <= year <= date.today().year:
         raise InvalidIdentifierError(f"CIN incorporation year out of range: {raw!r}")
     return ParsedCin(
+        normalized=value,
         listing=match.group(1),
         industry_code=match.group(2),
         state_code=match.group(3),
@@ -84,6 +89,7 @@ def parse_gstin(raw: str) -> ParsedGstin:
     if match.group(4) != expected:
         raise InvalidIdentifierError(f"GSTIN check character mismatch: {raw!r}")
     return ParsedGstin(
+        normalized=value,
         state_code=match.group(1),
         pan=match.group(2),
         entity_code=match.group(3),

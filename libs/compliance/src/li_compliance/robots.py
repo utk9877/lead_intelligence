@@ -3,6 +3,12 @@
 The fetcher is injectable so tests never touch the network; the real fetcher is
 supplied by the ingestion service (chunk 2), which itself goes through the
 allowed-sources registry first.
+
+Fetcher contract (RFC 9309): return the robots.txt body for 2xx and the empty
+string for 404/"not found" (which means allow-all). For a 5xx / unreachable
+origin the fetcher MUST raise, not return "" — a server error means *disallow
+all*, and the chunk-2 fetcher is responsible for translating transport failures
+into that fail-closed behavior rather than silently permitting a crawl.
 """
 
 from collections.abc import Callable

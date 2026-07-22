@@ -32,6 +32,16 @@ class TestCin:
 
     def test_lowercase_and_whitespace_normalized(self) -> None:
         assert is_valid_cin("  u12345mh2019ptc123456 ")
+        # The canonical form is exposed for storage — never the raw input.
+        assert parse_cin("  u12345mh2019ptc123456 ").normalized == FICTIONAL_CIN
+
+    @pytest.mark.parametrize(
+        "boundary_year,valid",
+        [(1850, True), (2019, True), (2026, True), (1849, False)],
+    )
+    def test_cin_year_boundaries(self, boundary_year: int, valid: bool) -> None:
+        cin = f"U12345MH{boundary_year}PTC123456"
+        assert is_valid_cin(cin) is valid
 
     @pytest.mark.parametrize(
         "bad",
@@ -50,6 +60,15 @@ class TestCin:
         assert not is_valid_cin(bad)
         with pytest.raises(InvalidIdentifierError):
             parse_cin(bad)
+
+    def test_non_ascii_digits_rejected(self) -> None:
+        # Built via chr() so no ambiguous glyphs appear in source. re.ASCII must
+        # keep fullwidth (U+FF10..) and Devanagari (U+0966..) digits out of \d,
+        # or they would pollute the canonical identifier and defeat dedup.
+        fullwidth = "".join(chr(0xFF10 + int(d)) for d in "12345")
+        devanagari = "".join(chr(0x0966 + int(d)) for d in "12345")
+        assert not is_valid_cin(f"U{fullwidth}MH2019PTC123456")
+        assert not is_valid_cin(f"U{devanagari}DL2020PTC123456")
 
 
 class TestGstin:

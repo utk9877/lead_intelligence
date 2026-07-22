@@ -33,6 +33,18 @@ def test_duplicate_cin_rejected_by_partial_unique_index(db_session: Session) -> 
         repo.add(name="Impostor Widgets Pvt Ltd", cin=FICTIONAL_CIN)
 
 
+def test_identifiers_stored_canonical_so_noncanonical_input_dedups(
+    db_session: Session,
+) -> None:
+    repo = CompanyRepository(db_session)
+    created = repo.add(name="Fictional Widgets Pvt Ltd", cin=FICTIONAL_CIN)
+    assert created.cin == FICTIONAL_CIN
+    # Lower-cased / whitespace-padded input must canonicalize to the same stored
+    # value — otherwise the case-sensitive unique index would not catch the dup.
+    with pytest.raises(IntegrityError):
+        repo.add(name="Impostor", cin=f"  {FICTIONAL_CIN.lower()} ")
+
+
 def test_multiple_companies_without_cin_allowed(db_session: Session) -> None:
     repo = CompanyRepository(db_session)
     repo.add(name="Unregistered Brand One")

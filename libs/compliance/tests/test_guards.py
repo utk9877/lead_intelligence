@@ -21,11 +21,36 @@ def test_company_level_payload_passes() -> None:
 
 @pytest.mark.parametrize(
     "key",
-    ["email", "first_name", "contactName", "LinkedIn_URL", "mobile", "din", "date-of-birth"],
+    [
+        "email",
+        "first_name",
+        "contactName",
+        "LinkedIn_URL",
+        "mobile",
+        "din",  # exact short token
+        "DIN",
+        "date-of-birth",
+        "designation",
+        "director_name",
+        "founder",
+        "ceo",
+        "email2",  # numbered variant
+        "Contact-Email",
+        "e_mail",
+    ],
 )
 def test_person_shaped_keys_rejected_in_any_style(key: str) -> None:
     with pytest.raises(PersonDataError):
         assert_company_level({key: "x"}, context="test")
+
+
+@pytest.mark.parametrize(
+    "safe_key",
+    ["coordinates", "heading", "din_verified_count", "revenue_inr", "founded_year"],
+)
+def test_company_level_keys_not_false_positives(safe_key: str) -> None:
+    # "din" as an exact token must not trip on "coordinates"; "founded" not on "founder".
+    assert_company_level({safe_key: 1}, context="test")
 
 
 def test_nested_person_key_rejected() -> None:
@@ -45,9 +70,23 @@ def test_email_address_in_value_rejected() -> None:
         )
 
 
-def test_indian_mobile_number_in_value_rejected() -> None:
+@pytest.mark.parametrize(
+    "text",
+    [
+        "9876543210",  # bare 10 digits
+        "+919876543210",
+        "+91 9876543210",
+        "+91 98765 43210",  # the common spaced form
+        "+91-98765-43210",
+        "98765 43210",
+        "98765-43210",
+        "919876543210",  # 91 prefix, no plus
+        "call us at 98765.43210 today",
+    ],
+)
+def test_indian_mobile_number_in_value_rejected(text: str) -> None:
     with pytest.raises(PersonDataError, match="Mobile number"):
-        assert_company_level({"notes": "call +91 98765 43210".replace(" ", "")}, context="test")
+        assert_company_level({"notes": text}, context="test")
 
 
 def test_identifiers_are_not_false_positives() -> None:

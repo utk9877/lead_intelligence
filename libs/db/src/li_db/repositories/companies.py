@@ -21,11 +21,13 @@ class CompanyRepository:
         gstin: str | None = None,
         domain: str | None = None,
     ) -> Company:
-        # Identifier validity is enforced at the write boundary, not trusted upstream.
+        # Validate AND canonicalize at the write boundary: the partial unique indexes
+        # on cin/gstin are case-sensitive, so storing the raw string would let "U…"
+        # and " u… " persist as two companies and defeat registry-anchor dedup (ADR-001).
         if cin is not None:
-            parse_cin(cin)
+            cin = parse_cin(cin).normalized
         if gstin is not None:
-            parse_gstin(gstin)
+            gstin = parse_gstin(gstin).normalized
         company = Company(name=name, cin=cin, gstin=gstin, domain=domain)
         self._session.add(company)
         self._session.flush()
