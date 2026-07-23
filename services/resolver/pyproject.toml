@@ -3,7 +3,16 @@ name = "li-resolver"
 version = "0.1.0"
 description = "Entity resolution onto CIN/GSTIN anchors"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "li-core",
+    "li-db",
+    "li-telemetry",
+]
+
+[tool.uv.sources]
+li-core = { workspace = true }
+li-db = { workspace = true }
+li-telemetry = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

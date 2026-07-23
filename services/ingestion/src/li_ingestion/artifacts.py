@@ -2,16 +2,18 @@
 
 Deliberately company-level only (ADR-005): none of these carry person fields, and
 `CandidateSignal.payload` is validated against the person-data guard before it is
-ever constructed (see normalize.py).
+ever constructed (see normalize.py). CandidateCompany/CandidateSignal are the
+shared domain types from li-core, re-exported here for the adapters' convenience.
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 
-from li_core.models import SignalType
+from li_core.models import CandidateCompany, CandidateSignal
+
+__all__ = ["CandidateCompany", "CandidateSignal", "EvidenceRecord", "RawArtifact"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,18 +36,3 @@ class EvidenceRecord:
     content_hash: str
     snapshot_key: str
     captured_at: datetime
-
-
-@dataclass(frozen=True, slots=True)
-class CandidateCompany:
-    name: str
-    cin: str | None = None
-    gstin: str | None = None
-    domain: str | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class CandidateSignal:
-    type: SignalType
-    observed_at: datetime
-    payload: Mapping[str, object] = field(default_factory=dict)

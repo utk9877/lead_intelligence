@@ -690,6 +690,18 @@ requires-dist = [
 name = "li-resolver"
 version = "0.1.0"
 source = { editable = "services/resolver" }
+dependencies = [
+    { name = "li-core" },
+    { name = "li-db" },
+    { name = "li-telemetry" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "li-core", editable = "libs/core" },
+    { name = "li-db", editable = "libs/db" },
+    { name = "li-telemetry", editable = "libs/telemetry" },
+]
 
 [[package]]
 name = "li-scheduler"
