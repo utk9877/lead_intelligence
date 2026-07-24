@@ -132,11 +132,31 @@ def test_name_only_candidate_is_queued(db_session: Session) -> None:
     assert _company_count(db_session) == 0
 
 
+def test_gstin_match_reports_gstin_method(db_session: Session) -> None:
+    _resolve(db_session, CandidateCompany(name="Alpha", cin=CIN_ALPHA, gstin=GST_ALPHA_MH))
+    result = _resolve(db_session, CandidateCompany(name="Alpha", gstin=GST_ALPHA_MH))
+    assert result.method is ResolutionMethod.GSTIN  # matched on GSTIN, not mislabelled CIN
+
+
+def test_pan_duplicate_discovered_during_enrichment_is_queued(db_session: Session) -> None:
+    # C is created first from a GSTIN. Then A is created CIN-only. A later candidate
+    # enriches A with a GSTIN sharing C's PAN — A and C are one legal entity, so the
+    # match still succeeds but the A/C duplicate is surfaced for human merge.
+    c = _resolve(db_session, CandidateCompany(name="Gamma KA", gstin=GST_ALPHA_KA))
+    _resolve(db_session, CandidateCompany(name="Alpha", cin=CIN_ALPHA))
+    enriched = _resolve(
+        db_session, CandidateCompany(name="Alpha", cin=CIN_ALPHA, gstin=GST_ALPHA_MH)
+    )
+    assert enriched.disposition is Disposition.MATCHED  # candidate resolved correctly
+    pending = ResolutionRepository(db_session).pending()
+    assert any(p.candidate_company_id == c.company_id for p in pending)  # A/C surfaced
+
+
 def test_golden_batch_zero_mismatch_zero_duplicate(db_session: Session) -> None:
-    # Three distinct real companies, each observed several times through different
-    # sources/identifiers. Every re-sighting carries a linking identifier or is an
-    # unanchored/PAN case that must queue (never create). Expected: exactly 3
-    # companies, and each identifier resolves to its own company (no cross-merge).
+    # Three distinct (synthetic) companies, each observed several times through
+    # different sources/identifiers. Every re-sighting carries a linking identifier
+    # or is an unanchored/PAN case that must queue (never create). Expected: exactly
+    # 3 companies, and each identifier resolves to its own company (no cross-merge).
     observations = [
         CandidateCompany(name="Alpha", cin=CIN_ALPHA, gstin=GST_ALPHA_MH),  # create A
         CandidateCompany(name="Alpha", gstin=GST_ALPHA_MH),  # match A (enriched)

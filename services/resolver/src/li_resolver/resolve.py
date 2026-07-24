@@ -4,6 +4,12 @@ Order: hard anchor (CIN/GSTIN) first; if that yields a company, we're done. A
 conflict or an unanchored candidate goes to the merge queue with the best fallback
 hint attached. Auto-creation only ever happens from a registry identifier, so the
 graph never grows an un-dedupable company automatically.
+
+A structurally-invalid CIN/GSTIN raises InvalidIdentifierError out of normalize_ids
+rather than being silently accepted — resolve() is intentionally not total. Today
+only the registry adapters populate identifiers and they pre-validate, so no live
+producer can feed a malformed one; when the worker loop is wired it will dead-letter
+such records rather than abort the batch.
 """
 
 from __future__ import annotations
@@ -33,11 +39,21 @@ def resolve(
                 company_id=outcome.company.id,
                 reason="created, anchored on CIN/GSTIN",
             )
+        # A duplicate discovered while enriching (same PAN, different company) is
+        # surfaced for human merge; the candidate itself still resolved correctly.
+        if outcome.pan_merge_hint is not None:
+            queue.enqueue(
+                source=source,
+                raw_name=candidate.name,
+                payload=_candidate_payload(candidate),
+                candidate_company_id=outcome.pan_merge_hint,
+            )
+        method = outcome.matched_on or ResolutionMethod.CIN
         return Resolution(
             disposition=Disposition.MATCHED,
-            method=ResolutionMethod.CIN if candidate.cin else ResolutionMethod.GSTIN,
+            method=method,
             company_id=outcome.company.id,
-            reason=f"matched on {'CIN' if candidate.cin else 'GSTIN'}",
+            reason=f"matched on {method.value.upper()}",
         )
 
     if isinstance(outcome, AnchorConflict):

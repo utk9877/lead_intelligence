@@ -8,6 +8,15 @@ duplicate rate is driven only by missing cross-identifiers, which `enrich` repai
 Unanchored candidates are never created here — they go to the merge queue
 (fallback.py), because a name or a shared domain is not strong enough to create or
 merge a company without human confirmation (QUESTIONS.md#entity-resolution).
+
+**Trust boundary.** The zero-mismatch guarantee assumes each candidate is
+*internally consistent* — its CIN and GSTIN belong to the same company. This holds
+because a candidate is built from a single source record (an MCA record pairs a
+company's CIN with its own GSTINs). If a source ever emitted a CIN and GSTIN from
+two different companies in one record, enrichment could attach the wrong GSTIN;
+that is a source-data defect, not a resolver behaviour, and is out of scope here.
+Cross-identifier *conflicts we can observe* (both ids already pointing at two
+different companies) are still caught below and queued, never merged.
 """
 
 from __future__ import annotations
@@ -27,6 +36,10 @@ from li_resolver.outcomes import ResolutionMethod
 class AnchorMatch:
     company: Company
     created: bool  # True if a new company was created, False if an existing one matched
+    matched_on: ResolutionMethod | None = None  # which identifier matched (None if created)
+    # If, while enriching, we discover the matched company shares a PAN with a
+    # *different* company, that is a duplicate to surface for human merge — set here.
+    pan_merge_hint: uuid.UUID | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,12 +91,27 @@ def anchor_resolve(
                 method=ResolutionMethod.IDENTIFIER_CONFLICT,
                 reason=f"matched {matched.id} has GSTIN {matched.gstin}, not {gstin}",
             )
+        # Before associating a new GSTIN, check whether its PAN already belongs to a
+        # *different* company — that means the matched company and that other company
+        # are the same legal entity (multi-state registration). We still match here,
+        # but surface the pair for human merge instead of letting the duplicate sit.
+        pan_merge_hint: uuid.UUID | None = None
+        if gstin is not None and matched.gstin is None:
+            pan = parse_gstin(gstin).pan
+            others = [c for c in companies.find_by_pan(pan) if c.id != matched.id]
+            if others:
+                pan_merge_hint = others[0].id
         # Enrich the matched company with any identifier/domain it lacks, so a later
         # candidate carrying that identifier resolves instead of duplicating.
         if cin and matched.cin is None:
             matched.cin = cin
         companies.enrich(matched, gstin=gstin, domain=candidate.domain)
-        return AnchorMatch(company=matched, created=False)
+        return AnchorMatch(
+            company=matched,
+            created=False,
+            matched_on=ResolutionMethod.CIN if cin_match else ResolutionMethod.GSTIN,
+            pan_merge_hint=pan_merge_hint,
+        )
 
     # No exact identifier match. Before creating, check whether the GSTIN's PAN
     # already belongs to a company — same legal entity, different state registration.
