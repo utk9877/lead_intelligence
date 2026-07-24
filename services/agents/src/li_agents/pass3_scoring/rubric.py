@@ -36,7 +36,7 @@ def score_account(metered: MeteredClient, account: ResearchedAccount) -> Account
         value = float(data["value"])
         band = ScoreBand(data["band"])
         rationale = str(data["rationale"])
-    except (KeyError, ValueError) as error:
+    except (KeyError, ValueError, TypeError) as error:
         raise ModelOutputError(f"malformed score: {response.text[:200]!r}") from error
     if not 0.0 <= value <= 100.0:
         raise ModelOutputError(f"score value out of range: {value}")

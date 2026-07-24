@@ -22,9 +22,11 @@ def classify_triggers(metered: MeteredClient, facts: CompanyFacts) -> list[Trigg
     if not facts.observations:
         return []
     allowed_ids = {o.evidence_id for o in facts.observations}
+    allowed_types = ", ".join(s.value for s in SignalType)  # source of truth, no drift
     lines = [{"observation": o.text, "evidence_id": str(o.evidence_id)} for o in facts.observations]
     user = (
         f"Company: {facts.name}\nObservations:\n{json.dumps(lines, indent=2)}\n\n"
+        f"Allowed trigger types: {allowed_types}.\n"
         'Respond with JSON: {"triggers": [{"type": <trigger>, "confidence": <0-1>, '
         '"evidence_id": <id>}]}. Only include observations that clearly support a trigger.'
     )
@@ -41,8 +43,10 @@ def classify_triggers(metered: MeteredClient, facts: CompanyFacts) -> list[Trigg
             signal = SignalType(raw["type"])
             evidence_id = uuid.UUID(str(raw["evidence_id"]))
             confidence = float(raw["confidence"])
-        except (KeyError, ValueError) as error:
+        except (KeyError, ValueError, TypeError) as error:
             raise ModelOutputError(f"malformed trigger: {raw!r}") from error
+        if not 0.0 <= confidence <= 1.0:
+            raise ModelOutputError(f"trigger confidence out of range: {confidence}")
         # A trigger may only cite evidence that was actually provided to the pass.
         if evidence_id not in allowed_ids:
             raise ModelOutputError(f"trigger cites unknown evidence_id {evidence_id}")

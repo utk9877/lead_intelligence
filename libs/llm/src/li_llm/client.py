@@ -81,6 +81,11 @@ def _normalize(message: Any) -> LLMResponse:  # pragma: no cover - real-API shap
             raw_content.append(
                 {"type": "tool_use", "id": block.id, "name": block.name, "input": block.input}
             )
+        elif block_type in ("thinking", "redacted_thinking"):
+            # Thinking blocks MUST be echoed back UNCHANGED in the next assistant turn
+            # when a tool_use follows, or the API 400s. Preserve them verbatim so the
+            # pass-2 tool loop (which runs with thinking on) round-trips correctly.
+            raw_content.append(_thinking_block(block))
     usage = Usage(
         input_tokens=getattr(message.usage, "input_tokens", 0) or 0,
         output_tokens=getattr(message.usage, "output_tokens", 0) or 0,
@@ -95,3 +100,9 @@ def _normalize(message: Any) -> LLMResponse:  # pragma: no cover - real-API shap
         usage=usage,
         raw_content=raw_content,
     )
+
+
+def _thinking_block(block: Any) -> dict[str, Any]:  # pragma: no cover - real-API shape
+    if getattr(block, "type", None) == "redacted_thinking":
+        return {"type": "redacted_thinking", "data": block.data}
+    return {"type": "thinking", "thinking": block.thinking, "signature": block.signature}

@@ -11,15 +11,8 @@ PASS1_VERSION = "p1-2026-07"
 PASS2_VERSION = "p2-2026-07"
 RUBRIC_VERSION = "r1-2026-07"
 
-# The six trigger types the classifier may assign (mirrors PROJECT_SPEC.md §4).
-TRIGGER_TYPES = (
-    "funding_round",
-    "hiring_surge",
-    "new_incorporation",
-    "gst_registration",
-    "expansion",
-    "tech_adoption",
-)
+# The allowed trigger vocabulary is SignalType (PROJECT_SPEC.md §4) — classify.py
+# derives it from the enum and feeds it to the model, so there is no list to drift.
 
 PASS1_SYSTEM = (
     "You classify company-level observations into buying-trigger types for a B2B "

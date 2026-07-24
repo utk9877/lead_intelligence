@@ -19,6 +19,7 @@ from li_core.models import ScoreBand, SignalType
 from li_llm.ledger import InMemoryCostSink
 from li_llm.metered import MeteredClient
 from li_llm.stub import StubLLMClient
+from li_llm.types import LLMResponse, Usage
 
 
 def _metered(*responses: object) -> MeteredClient:
@@ -102,6 +103,22 @@ def test_pass2_unknown_tool_call_is_rejected(
     metered = _metered(tool_use_response("delete_everything", {}))
     with pytest.raises(ModelOutputError, match="unknown tool"):
         research_account(metered, facts, evidence_set, tools, system_preamble="p")
+
+
+def test_pass2_refusal_reports_the_stop_reason_not_a_json_error(
+    facts: CompanyFacts, evidence_set: EvidenceSet, tools: ToolContext
+) -> None:
+    # A refusal must not be misreported as "expected JSON, got ''".
+    refusal = LLMResponse("m", "refusal", "", [], Usage(input_tokens=1, output_tokens=0))
+    metered = _metered(refusal)
+    with pytest.raises(ResearchIncompleteError, match="refusal"):
+        research_account(metered, facts, evidence_set, tools, system_preamble="p")
+
+
+def test_pass1_rejects_confidence_out_of_range(facts: CompanyFacts) -> None:
+    metered = _metered(triggers_json(("funding_round", 5.0, EV_FUNDING)))
+    with pytest.raises(ModelOutputError, match="confidence out of range"):
+        classify_triggers(metered, facts)
 
 
 # ---- pass 3 ----

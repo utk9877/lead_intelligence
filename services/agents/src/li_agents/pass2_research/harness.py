@@ -60,7 +60,14 @@ def research_account(
             ]
             messages.append({"role": "user", "content": results})
             continue
-        return _finalize(facts.company_id, response.text, evidence)
+        if response.stop_reason == "end_turn":
+            return _finalize(facts.company_id, response.text, evidence)
+        # refusal / max_tokens / pause_turn / anything else: don't try to parse a
+        # truncated or empty body as JSON — report the real cause.
+        raise ResearchIncompleteError(
+            f"research for {facts.company_id} stopped on {response.stop_reason!r} "
+            "(no usable output)"
+        )
     raise ResearchIncompleteError(f"research for {facts.company_id} exceeded {_MAX_TURNS} turns")
 
 
@@ -77,7 +84,7 @@ def _finalize(company_id: uuid.UUID, text: str, evidence: EvidenceSet) -> Resear
             why_fit=str(data["why_fit"]),
             claims=claims,
         )
-    except (KeyError, ValueError) as error:
+    except (KeyError, ValueError, TypeError) as error:
         raise ModelOutputError(f"malformed research output: {text[:200]!r}") from error
     # Reject the account if any claim is uncited — before it is ever scored/delivered.
     for claim in account.claims:
