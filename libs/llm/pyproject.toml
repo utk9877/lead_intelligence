@@ -3,7 +3,13 @@ name = "li-llm"
 version = "0.1.0"
 description = "Claude client, model tiering, prompt caching, budget caps, cost ledger"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "li-core",
+    "anthropic>=0.40",
+]
+
+[tool.uv.sources]
+li-core = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

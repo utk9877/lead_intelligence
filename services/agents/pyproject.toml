@@ -3,7 +3,18 @@ name = "li-agents"
 version = "0.1.0"
 description = "Three-pass pipeline: triggers, deep-fit research, scoring"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "li-core",
+    "li-llm",
+    "li-storage",
+    "li-telemetry",
+]
+
+[tool.uv.sources]
+li-core = { workspace = true }
+li-llm = { workspace = true }
+li-storage = { workspace = true }
+li-telemetry = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]
