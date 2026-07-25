@@ -7,6 +7,7 @@ from decimal import Decimal
 import pytest
 from li_api.schemas import ReviewDecision, ReviewRequest
 from li_api.service import DbQaService
+from li_core.models import ScoreBand
 from li_db.orm import Customer, Score
 from li_db.repositories import CompanyRepository, CostLedgerRepository
 from li_db.testing import database_url
@@ -28,7 +29,7 @@ def _seed_scored_account(session: Session) -> Score:
         company_id=company.id,
         customer_id=customer.id,
         value=Decimal("80.00"),
-        band="warm",
+        band=ScoreBand.WARM,
         rubric_version="r1",
         model_version="claude-sonnet-5",
     )
@@ -75,7 +76,7 @@ def test_rescore_reenters_the_review_queue(db_session: Session) -> None:
         company_id=score.company_id,
         customer_id=score.customer_id,
         value=Decimal("90.00"),
-        band="hot",
+        band=ScoreBand.HOT,
         rubric_version="r1",
         model_version="claude-opus-4-8",
     )
