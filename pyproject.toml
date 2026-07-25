@@ -10,6 +10,7 @@ package = false
 
 [tool.uv.workspace]
 members = ["libs/*", "services/*"]
+exclude = ["services/qa-console"]  # Node/Next.js app, not a Python package
 
 [dependency-groups]
 dev = [
@@ -27,6 +28,10 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection idiom puts these calls in argument defaults.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Header", "fastapi.Query"]
 
 [tool.mypy]
 python_version = "3.12"

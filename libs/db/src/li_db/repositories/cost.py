@@ -48,3 +48,10 @@ class CostLedgerRepository:
         if customer_id is not None:
             stmt = stmt.where(CostLedgerEntry.customer_id == customer_id)
         return self._session.scalar(stmt) or Decimal("0")
+
+    def by_stage(self) -> dict[str, Decimal]:
+        """₹ rolled up by pipeline stage — the cost-per-stage board (§10)."""
+        stmt = select(CostLedgerEntry.stage, func.sum(CostLedgerEntry.cost_inr)).group_by(
+            CostLedgerEntry.stage
+        )
+        return {stage.value: total for stage, total in self._session.execute(stmt).all()}

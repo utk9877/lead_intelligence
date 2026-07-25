@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://li:li_dev_password@localhost:5432/lead_intelligence"
     evidence_bucket: str = "evidence-snapshots"
+    # Internal API auth (QA console → api). Dev default; real value comes from env.
+    internal_api_key: str = "dev-internal-key"
 
 
 @lru_cache(maxsize=1)

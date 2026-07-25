@@ -27,8 +27,14 @@ fmt: sync        ## Auto-format
 typecheck: sync  ## mypy only
 	uv run mypy libs services
 
-migrate:         ## Alembic migrations (lands in build chunk 1)
-	@echo "not yet available: li-db/Alembic arrives in build chunk 1"
+migrate: sync    ## Apply Alembic migrations to the database in DATABASE_URL
+	uv run alembic -c libs/db/alembic.ini upgrade head
+
+api: sync        ## Run the FastAPI app locally (needs make up + make migrate first)
+	uv run uvicorn li_api.main:app --reload --port 8000
+
+console:         ## Run the Next.js QA console dev server (needs npm install first)
+	cd services/qa-console && npm run dev
 
 seed:            ## Seed fictional dev companies (lands in build chunk 6)
 	@echo "not yet available: tools/seed.py arrives in build chunk 6"
