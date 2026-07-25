@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from li_core.models import ScoreBand
-from sqlalchemy import Select, select, tuple_
+from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
 from li_db.orm import Company, QaDecision, QaReview, Score
@@ -32,14 +32,16 @@ class QaRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
-    def _reviewed_pairs(self) -> Select[tuple[uuid.UUID, uuid.UUID]]:
-        return select(QaReview.company_id, QaReview.customer_id)
+    def _reviewed_scores(self) -> Select[tuple[uuid.UUID]]:
+        return select(QaReview.score_id)
 
     def review_queue(self) -> list[ReviewableAccount]:
+        # Score-grained: a score is in the queue until THAT score has a review, so a
+        # re-scored account re-enters the gate rather than inheriting an old verdict.
         stmt = (
             select(Score, Company.name)
             .join(Company, Score.company_id == Company.id)
-            .where(tuple_(Score.company_id, Score.customer_id).not_in(self._reviewed_pairs()))
+            .where(Score.id.not_in(self._reviewed_scores()))
             .order_by(Score.value.desc())
         )
         return [
@@ -59,6 +61,7 @@ class QaRepository:
     def record_review(
         self,
         *,
+        score_id: uuid.UUID,
         company_id: uuid.UUID,
         customer_id: uuid.UUID,
         reviewer: str,
@@ -66,6 +69,7 @@ class QaRepository:
         notes: str | None = None,
     ) -> QaReview:
         review = QaReview(
+            score_id=score_id,
             company_id=company_id,
             customer_id=customer_id,
             reviewer=reviewer,

@@ -54,6 +54,7 @@ class DbQaService:
 
     def record_review(self, request: ReviewRequest) -> ReviewResult:
         review = self._qa.record_review(
+            score_id=request.score_id,
             company_id=request.company_id,
             customer_id=request.customer_id,
             reviewer=request.reviewer,

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import uuid
 from decimal import Decimal
 
 import pytest
@@ -20,42 +19,69 @@ pytestmark = pytest.mark.skipif(
 CIN = "U12345MH2019PTC123456"
 
 
-def _seed_scored_account(session: Session) -> tuple[uuid.UUID, uuid.UUID]:
+def _seed_scored_account(session: Session) -> Score:
     company = CompanyRepository(session).add(name="Fictional Widgets Pvt Ltd", cin=CIN)
     customer = Customer(name="DevOps SaaS Co", niche="funded SMBs")
     session.add(customer)
     session.flush()
-    session.add(
-        Score(
-            company_id=company.id,
-            customer_id=customer.id,
-            value=Decimal("80.00"),
-            band="warm",
-            rubric_version="r1",
-            model_version="claude-sonnet-5",
-        )
+    score = Score(
+        company_id=company.id,
+        customer_id=customer.id,
+        value=Decimal("80.00"),
+        band="warm",
+        rubric_version="r1",
+        model_version="claude-sonnet-5",
     )
+    session.add(score)
     session.flush()
-    return company.id, customer.id
+    return score
 
 
 def test_review_queue_then_review_removes_from_queue(db_session: Session) -> None:
-    company_id, customer_id = _seed_scored_account(db_session)
+    score = _seed_scored_account(db_session)
     service = DbQaService(db_session)
 
     queue = service.review_queue()
-    assert [a.company_id for a in queue] == [company_id]
+    assert [a.score_id for a in queue] == [score.id]
 
     service.record_review(
         ReviewRequest(
-            company_id=company_id,
-            customer_id=customer_id,
+            score_id=score.id,
+            company_id=score.company_id,
+            customer_id=score.customer_id,
             reviewer="alice",
             decision=ReviewDecision.APPROVE,
         )
     )
-    # Once reviewed, the account leaves the queue (left-anti-join).
+    # Once THAT score is reviewed, it leaves the queue.
     assert service.review_queue() == []
+
+
+def test_rescore_reenters_the_review_queue(db_session: Session) -> None:
+    score = _seed_scored_account(db_session)
+    service = DbQaService(db_session)
+    service.record_review(
+        ReviewRequest(
+            score_id=score.id,
+            company_id=score.company_id,
+            customer_id=score.customer_id,
+            reviewer="alice",
+            decision=ReviewDecision.APPROVE,
+        )
+    )
+    assert service.review_queue() == []
+    # A NEW score for the same company/customer must NOT inherit the old verdict.
+    rescored = Score(
+        company_id=score.company_id,
+        customer_id=score.customer_id,
+        value=Decimal("90.00"),
+        band="hot",
+        rubric_version="r1",
+        model_version="claude-opus-4-8",
+    )
+    db_session.add(rescored)
+    db_session.flush()
+    assert [a.score_id for a in service.review_queue()] == [rescored.id]
 
 
 def test_cost_summary_rolls_up_by_stage(db_session: Session) -> None:

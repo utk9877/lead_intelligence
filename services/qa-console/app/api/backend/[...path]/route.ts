@@ -7,7 +7,9 @@ const API_BASE = process.env.API_BASE ?? "http://localhost:8000";
 const API_KEY = process.env.INTERNAL_API_KEY ?? "dev-internal-key";
 
 async function forward(req: NextRequest, path: string[]): Promise<NextResponse> {
-  const url = `${API_BASE}/${path.join("/")}`;
+  // API_BASE (scheme+host) is always the authority; only path segments and the
+  // query string are appended, so a crafted path can't retarget a different host.
+  const url = `${API_BASE}/${path.join("/")}${req.nextUrl.search}`;
   const init: RequestInit = {
     method: req.method,
     headers: { "x-api-key": API_KEY, "content-type": "application/json" },

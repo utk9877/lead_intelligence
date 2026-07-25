@@ -91,6 +91,7 @@ def test_review_queue_returns_scored_accounts(client: TestClient) -> None:
 
 def test_record_review_writes_through(client: TestClient, fake: FakeService) -> None:
     payload = {
+        "score_id": str(uuid.uuid4()),
         "company_id": str(COMPANY),
         "customer_id": str(CUSTOMER),
         "reviewer": "alice",
@@ -105,6 +106,7 @@ def test_record_review_writes_through(client: TestClient, fake: FakeService) -> 
 
 def test_invalid_decision_is_rejected(client: TestClient) -> None:
     payload = {
+        "score_id": str(uuid.uuid4()),
         "company_id": str(COMPANY),
         "customer_id": str(CUSTOMER),
         "reviewer": "alice",
@@ -135,4 +137,17 @@ def test_data_routes_require_api_key(fake: FakeService, monkeypatch: pytest.Monk
     assert client.get("/qa/queue").status_code == 401
     assert client.get("/qa/queue", headers={"x-api-key": "wrong"}).status_code == 401
     assert client.get("/qa/queue", headers={"x-api-key": "secret-key"}).status_code == 200
+    get_settings.cache_clear()
+
+
+def test_production_refuses_to_start_on_the_dev_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    from li_api.main import InsecureConfigError
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    # internal_api_key left at the dev default → must fail closed.
+    from li_core.config import get_settings
+
+    get_settings.cache_clear()
+    with pytest.raises(InsecureConfigError):
+        create_app()
     get_settings.cache_clear()
