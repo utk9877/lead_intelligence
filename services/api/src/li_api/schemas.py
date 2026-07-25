@@ -27,6 +27,7 @@ class AccountSummary(BaseModel):
 
 
 class ReviewRequest(BaseModel):
+    score_id: uuid.UUID
     company_id: uuid.UUID
     customer_id: uuid.UUID
     reviewer: str

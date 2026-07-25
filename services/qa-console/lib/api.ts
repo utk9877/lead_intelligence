@@ -47,6 +47,7 @@ export async function getCosts(): Promise<CostSummary> {
 }
 
 export async function recordReview(input: {
+  score_id: string;
   company_id: string;
   customer_id: string;
   reviewer: string;

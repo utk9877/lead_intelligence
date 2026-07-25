@@ -163,6 +163,10 @@ class QaReview(Base):
     __tablename__ = "qa_reviews"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    # A review is a verdict on a SPECIFIC scored version, not on the company/customer
+    # pair — so a re-score re-enters the review queue instead of silently inheriting
+    # the old verdict and bypassing the human gate (docs/ARCHITECTURE.md §9).
+    score_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("scores.id"))
     company_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("companies.id"))
     customer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("customers.id"))
     reviewer: Mapped[str] = mapped_column(Text)

@@ -29,6 +29,7 @@ export default function ReviewQueuePage() {
     setBusy(account.score_id);
     try {
       await recordReview({
+        score_id: account.score_id,
         company_id: account.company_id,
         customer_id: account.customer_id,
         reviewer: "reviewer",

@@ -32,7 +32,11 @@ test("reviewer sees the queue, approves an account, and it leaves the queue", as
   // The approved account leaves the queue, and the review was posted with the ids.
   await expect(page.getByTestId("account")).toHaveCount(0);
   await expect(page.getByTestId("empty")).toBeVisible();
-  expect(reviewBody).toMatchObject({ decision: "approve", company_id: ACCOUNT.company_id });
+  expect(reviewBody).toMatchObject({
+    decision: "approve",
+    score_id: ACCOUNT.score_id,
+    company_id: ACCOUNT.company_id,
+  });
 });
 
 test("cost board renders the ledger rollup", async ({ page }) => {
