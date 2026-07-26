@@ -18,14 +18,14 @@ test: sync       ## Run all tests
 lint: sync       ## Ruff lint + format check + mypy
 	uv run ruff check .
 	uv run ruff format --check .
-	uv run mypy libs services
+	uv run mypy libs services tools
 
 fmt: sync        ## Auto-format
 	uv run ruff format .
 	uv run ruff check --fix .
 
 typecheck: sync  ## mypy only
-	uv run mypy libs services
+	uv run mypy libs services tools
 
 migrate: sync    ## Apply Alembic migrations to the database in DATABASE_URL
 	uv run alembic -c libs/db/alembic.ini upgrade head

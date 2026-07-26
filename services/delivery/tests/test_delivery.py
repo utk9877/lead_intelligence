@@ -77,6 +77,40 @@ def test_card_to_blocks_has_a_citation_per_claim() -> None:
     assert any("source" in b.get("text", {}).get("text", "") for b in blocks)
 
 
+def test_slack_escapes_mrkdwn_control_chars() -> None:
+    # A claim text with mrkdwn/broadcast chars must be neutralised (no live @here).
+    account = ResearchedAccount(
+        company_id=COMPANY, why_now="<!here> ping", why_fit="a & b", claims=(Claim("<script>", EV),)
+    )
+    blocks = card_to_blocks(render_delivery_card(account, _score(ScoreBand.WARM), _evidence_set()))
+    rendered = "".join(b.get("text", {}).get("text", "") for b in blocks if b["type"] == "section")
+    assert "<!here>" not in rendered  # escaped to &lt;!here&gt;
+    assert "&lt;!here&gt;" in rendered
+    assert "<script>" not in rendered and "&lt;script&gt;" in rendered
+
+
+def test_slack_degrades_a_malicious_source_url_to_plain_text() -> None:
+    ev_id = uuid.uuid4()
+    evidence = EvidenceSet(
+        [
+            Evidence(
+                id=ev_id,
+                source_url="https://x.test/1|@channel>ping",
+                content_hash="0" * 64,
+                snapshot_key="k",
+                captured_at=NOW,
+            )
+        ]
+    )
+    account = ResearchedAccount(
+        company_id=COMPANY, why_now="n", why_fit="f", claims=(Claim("c", ev_id),)
+    )
+    blocks = card_to_blocks(render_delivery_card(account, _score(ScoreBand.WARM), evidence))
+    rendered = "".join(b.get("text", {}).get("text", "") for b in blocks if b["type"] == "section")
+    # The dangerous URL never becomes a live <...|...> link.
+    assert "<https://x.test/1|@channel>" not in rendered
+
+
 def test_slack_delivery_ok_and_error() -> None:
     card = render_delivery_card(_account(), _score(ScoreBand.WARM), _evidence_set())
     sent: list[tuple[str, dict[str, Any]]] = []

@@ -8,10 +8,16 @@ metric and future scoring learn from (PROJECT_SPEC.md §6).
 import uuid
 from datetime import UTC, datetime
 
+from li_core.errors import LeadIntelligenceError
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from li_db.orm import Delivery, DeliveryFeedback
+
+
+class FeedbackAlreadyRecordedError(LeadIntelligenceError):
+    """Feedback for this delivery was already recorded; it is set-once (the label
+    is audit data — a changed verdict is a new signal, not a silent overwrite)."""
 
 
 class DeliveryRepository:
@@ -46,6 +52,11 @@ class DeliveryRepository:
         delivery = self._session.get(Delivery, delivery_id)
         if delivery is None:
             raise KeyError(f"no delivery {delivery_id}")
+        if delivery.feedback is not None:
+            # Set-once: never silently overwrite a recorded verdict (audit integrity).
+            raise FeedbackAlreadyRecordedError(
+                f"delivery {delivery_id} already has feedback {delivery.feedback.value}"
+            )
         delivery.feedback = DeliveryFeedback(feedback)
         delivery.feedback_at = at or datetime.now(UTC)
         self._session.flush()

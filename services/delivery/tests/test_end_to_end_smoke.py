@@ -24,6 +24,7 @@ from li_db.orm import Evidence as OrmEvidence
 from li_db.repositories import (
     CompanyRepository,
     DeliveryRepository,
+    FeedbackAlreadyRecordedError,
     QaRepository,
     ResolutionRepository,
 )
@@ -174,3 +175,7 @@ def test_end_to_end_smoke(db_session: Session) -> None:
     labelled = deliveries.with_feedback()
     assert len(labelled) == 1
     assert labelled[0].feedback is not None and labelled[0].feedback.value == "pursue"
+
+    # Feedback is set-once: a second verdict must not silently overwrite the label.
+    with pytest.raises(FeedbackAlreadyRecordedError):
+        deliveries.record_feedback(delivery.id, "reject")
