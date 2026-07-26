@@ -51,6 +51,13 @@ MODEL_PRICING: dict[str, ModelPricing] = {
     "claude-opus-4-8": ModelPricing(Decimal("5.00"), Decimal("25.00")),
 }
 
+
+def register_model_pricing(model: str, input_per_mtok: Decimal, output_per_mtok: Decimal) -> None:
+    """Register list pricing for a model not built in (e.g. an open-source model
+    behind an OpenAI-compatible endpoint), so the cost ledger prices it correctly."""
+    MODEL_PRICING[model] = ModelPricing(input_per_mtok, output_per_mtok)
+
+
 # Placeholder FX rate — illustrative, configurable, never a commitment.
 DEFAULT_USD_TO_INR = Decimal("83.0")
 
