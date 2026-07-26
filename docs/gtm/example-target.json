@@ -1,0 +1,25 @@
+{
+  "company": {
+    "name": "Example Analytics Pvt Ltd",
+    "cin": "U72900KA2021PTC100200",
+    "domain": "example-analytics.test"
+  },
+  "customer": {
+    "offering": "a DevOps automation SaaS (CI/CD pipelines, observability, on-call)",
+    "niche": "funded Indian SMBs scaling their engineering infrastructure"
+  },
+  "observations": [
+    {
+      "text": "Raised a Series A of about 40 crore in May 2026, led by a named fund",
+      "source_url": "https://REPLACE-with-the-real-funding-news-url"
+    },
+    {
+      "text": "Has 7 open engineering roles (SRE, DevOps, Platform) posted in the last two months",
+      "source_url": "https://REPLACE-with-the-real-careers-page-url"
+    },
+    {
+      "text": "Job posts mention Kubernetes and AWS in their stack",
+      "source_url": "https://REPLACE-with-the-real-job-post-url"
+    }
+  ]
+}
