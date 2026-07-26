@@ -36,5 +36,8 @@ api: sync        ## Run the FastAPI app locally (needs make up + make migrate fi
 console:         ## Run the Next.js QA console dev server (needs npm install first)
 	cd services/qa-console && npm run dev
 
-seed:            ## Seed fictional dev companies (lands in build chunk 6)
-	@echo "not yet available: tools/seed.py arrives in build chunk 6"
+seed: sync       ## Seed fictional dev companies (needs make up + make migrate first)
+	uv run python tools/seed.py
+
+cost-report: sync ## Print the cost-per-account report from the ledger
+	uv run python tools/cost_report.py

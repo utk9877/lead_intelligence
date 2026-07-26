@@ -3,7 +3,16 @@ name = "li-delivery"
 version = "0.1.0"
 description = "Account cards, Slack delivery, feedback capture"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "li-core",
+    "li-agents",
+    "li-telemetry",
+]
+
+[tool.uv.sources]
+li-core = { workspace = true }
+li-agents = { workspace = true }
+li-telemetry = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

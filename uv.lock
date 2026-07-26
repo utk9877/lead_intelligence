@@ -818,6 +818,18 @@ requires-dist = [
 name = "li-delivery"
 version = "0.1.0"
 source = { editable = "services/delivery" }
+dependencies = [
+    { name = "li-agents" },
+    { name = "li-core" },
+    { name = "li-telemetry" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "li-agents", editable = "services/agents" },
+    { name = "li-core", editable = "libs/core" },
+    { name = "li-telemetry", editable = "libs/telemetry" },
+]
 
 [[package]]
 name = "li-ingestion"
