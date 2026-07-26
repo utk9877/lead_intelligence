@@ -5,7 +5,9 @@ Hard rules encoded structurally:
   metadata and CI fails if a person-shaped column appears.
 - A signal always cites evidence (`signals.evidence_id` NOT NULL).
 - Nothing is delivered without QA (`deliveries.qa_review_id` NOT NULL).
-- `qa_reviews` and `deliveries` are append-only (no updated_at; API layer only inserts).
+- `qa_reviews` is append-only (no updated_at; inserts only). `deliveries` rows are
+  inserted once; the sole permitted mutation is setting `feedback`/`feedback_at`
+  exactly once (DeliveryRepository enforces set-once), so the label stays audit-safe.
 """
 
 import enum

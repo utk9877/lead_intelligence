@@ -18,14 +18,14 @@ test: sync       ## Run all tests
 lint: sync       ## Ruff lint + format check + mypy
 	uv run ruff check .
 	uv run ruff format --check .
-	uv run mypy libs services
+	uv run mypy libs services tools
 
 fmt: sync        ## Auto-format
 	uv run ruff format .
 	uv run ruff check --fix .
 
 typecheck: sync  ## mypy only
-	uv run mypy libs services
+	uv run mypy libs services tools
 
 migrate: sync    ## Apply Alembic migrations to the database in DATABASE_URL
 	uv run alembic -c libs/db/alembic.ini upgrade head
@@ -36,5 +36,8 @@ api: sync        ## Run the FastAPI app locally (needs make up + make migrate fi
 console:         ## Run the Next.js QA console dev server (needs npm install first)
 	cd services/qa-console && npm run dev
 
-seed:            ## Seed fictional dev companies (lands in build chunk 6)
-	@echo "not yet available: tools/seed.py arrives in build chunk 6"
+seed: sync       ## Seed fictional dev companies (needs make up + make migrate first)
+	uv run python tools/seed.py
+
+cost-report: sync ## Print the cost-per-account report from the ledger
+	uv run python tools/cost_report.py
