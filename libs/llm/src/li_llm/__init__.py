@@ -4,6 +4,7 @@ from li_llm.budget import BudgetExceededError, BudgetGuard
 from li_llm.client import AnthropicClient, LLMClient
 from li_llm.ledger import CostEntry, CostSink, CostStage, InMemoryCostSink
 from li_llm.metered import STAGE_TIER, MeteredClient
+from li_llm.openai_client import OpenAICompatibleClient
 from li_llm.prompt_cache import cached_system
 from li_llm.stub import StubLLMClient, text_response
 from li_llm.tiers import (
@@ -13,6 +14,7 @@ from li_llm.tiers import (
     ModelTier,
     cost_inr,
     model_for,
+    register_model_pricing,
 )
 from li_llm.types import LLMResponse, ToolCall, Usage
 
@@ -34,11 +36,13 @@ __all__ = [
     "LLMResponse",
     "MeteredClient",
     "ModelTier",
+    "OpenAICompatibleClient",
     "StubLLMClient",
     "ToolCall",
     "Usage",
     "cached_system",
     "cost_inr",
     "model_for",
+    "register_model_pricing",
     "text_response",
 ]

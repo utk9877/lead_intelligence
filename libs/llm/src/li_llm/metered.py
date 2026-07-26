@@ -15,7 +15,7 @@ from typing import Any
 from li_llm.budget import BudgetGuard
 from li_llm.client import LLMClient
 from li_llm.ledger import CostEntry, CostSink, CostStage
-from li_llm.tiers import DEFAULT_USD_TO_INR, ModelTier, cost_inr, model_for
+from li_llm.tiers import DEFAULT_USD_TO_INR, MODEL_PRICING, ModelTier, cost_inr, model_for
 from li_llm.types import LLMResponse
 
 # Which model tier each cost stage runs on (single source of truth).
@@ -67,13 +67,20 @@ class MeteredClient:
             thinking=thinking,
             effort=effort,
         )
-        # Price on the requested tier model (list price), never the echoed model id.
-        cost = cost_inr(model, response.usage, usd_to_inr=self._usd_to_inr)
+        # Price on the model the response reports IF it has pricing (so an
+        # open-source model behind an OpenAI-compatible endpoint prices correctly);
+        # otherwise fall back to the requested tier model. A stub's unpriced
+        # "stub-model" falls back to the Anthropic tier model as before.
+        priced_model = response.model if response.model in MODEL_PRICING else model
+        try:
+            cost = cost_inr(priced_model, response.usage, usd_to_inr=self._usd_to_inr)
+        except KeyError:
+            cost = Decimal("0")  # unknown model: record the call, price it 0
         self._sink.record(
             CostEntry(
                 stage=stage,
                 provider=self._provider,
-                model=model,
+                model=priced_model,
                 cost_inr=cost,
                 input_tokens=response.usage.input_tokens,
                 output_tokens=response.usage.output_tokens,
